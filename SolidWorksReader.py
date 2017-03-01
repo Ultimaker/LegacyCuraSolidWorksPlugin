@@ -65,7 +65,7 @@ class SolidWorksReader(CommonCOMReader):
                 Logger.logException("e", "Error which occured when checking for a valid app instance")
                 return False
         return True
-    
+
     def closeApp(self, **options):
         if "app_instance" in options.keys():
             del(options["app_instance"])
