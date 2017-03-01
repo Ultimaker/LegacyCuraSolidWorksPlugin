@@ -66,7 +66,6 @@ class SolidWorksReader(CommonCOMReader):
         return True
     
     def closeApp(self):
-        self._app_instance.ExitApp()
         del(self._app_instance)        
         self._app_instance = None
 
