@@ -89,7 +89,7 @@ class CommonCOMReader(MeshReader):
     def setAppVisible(self, state, **options):
         raise NotImplementedError("Toggle for visibility not implemented!")
     
-    def closeApp(self):
+    def closeApp(self, **options):
         raise NotImplementedError("Procedure how to close your app is not implemented!")
     
     def openForeignFile(self, **options):
@@ -183,7 +183,7 @@ class CommonCOMReader(MeshReader):
         self.closeForeignFile(**options)
         
         # Closing the app again..
-        self.closeApp()
+        self.closeApp(**options)
         
         # Turning off thread-safity again...
         pythoncom.CoUninitialize()
