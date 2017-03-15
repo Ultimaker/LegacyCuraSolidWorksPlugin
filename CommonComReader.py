@@ -101,6 +101,9 @@ class CommonCOMReader(MeshReader):
     def closeForeignFile(self, **options):
         raise NotImplementedError("Closing files is not implemented!")
     
+    def nodePostProcessing(self, node):
+        return node
+    
     def read(self, filePath):
         options = {"foreignFile" : filePath,
                    "foreignFormat" : os.path.splitext(filePath)[1],
@@ -189,7 +192,8 @@ class CommonCOMReader(MeshReader):
         pythoncom.CoUninitialize()
 
         scene_node = SceneNode()
-        mesh = temp_scene_node.getMeshData()
+        temp_scene_node = self.nodePostProcessing(temp_scene_node)
+        mesh = temp_scene_node.getMeshDataTransformed()
         
         # When using 3MF as the format to convert into we get an list of meshes instead of only one mesh directly.
         # This is a little workaround since reloading of 3MF files doesn't work at the moment.
