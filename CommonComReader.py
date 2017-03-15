@@ -19,9 +19,7 @@ import win32com.client
 import pythoncom
 import pywintypes
 
-class CommonCOMReader(MeshReader):
-    is_busy = False
-    
+class CommonCOMReader(MeshReader):    
     def __init__(self, app_name, app_friendlyName):
         self._app_name = app_name
         self._app_friendlyName = app_friendlyName
@@ -104,10 +102,6 @@ class CommonCOMReader(MeshReader):
         raise NotImplementedError("Closing files is not implemented!")
     
     def read(self, filePath):
-        Logger.log("d", "Busy: "+repr(self.is_busy))
-        
-        self.is_busy = True
-
         options = {"foreignFile" : filePath,
                    "foreignFormat" : os.path.splitext(filePath)[1],
                   }
@@ -194,7 +188,6 @@ class CommonCOMReader(MeshReader):
         # Turning off thread-safity again...
         pythoncom.CoUninitialize()
 
-        self.is_busy = False
         scene_node = SceneNode()
         mesh = temp_scene_node.getMeshData()
         
