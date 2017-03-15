@@ -20,8 +20,9 @@ import pythoncom
 import pywintypes
 
 class CommonCOMReader(MeshReader):
+    is_busy = False
+    
     def __init__(self, app_name, app_friendlyName):
-        self._app_instance = None
         self._app_name = app_name
         self._app_friendlyName = app_friendlyName
         
@@ -47,11 +48,7 @@ class CommonCOMReader(MeshReader):
         
         Logger.log("d", "Looking for readers...")
         self.__init_builtin_readers__()
-        
-    def __del__(self):
-        if self._app_instance:
-            self.closeApp()
-        
+    
     def __init_builtin_readers__(self):
         self._fileFormatsFirstChoise = [] # Ordered list of preferred formats
         self._readerForFileformat = {}
@@ -77,34 +74,13 @@ class CommonCOMReader(MeshReader):
         
         return temp_stl_file_name
     
-    """
-    def startApp(self, visible = False):
-        startup_tries = 3
-        startup_try = 1
-        
-        while startup_try <= startup_tries:
-            if self._app_instance is None:
-                self._startApp(visible)
-            
-            if not self.checkApp():
-                self.closeApp()
-                startup_try += 1
-            else:
-                return self._app_instance
-        
-        raise Exception("Could not start a valid app instance!")
-    """
-
     def startApp(self, visible = False ):
-        if not self._app_instance:
-            Logger.log("d", "Starting %s..." %(self._app_friendlyName))
-            self._app_instance = win32com.client.Dispatch(self._app_name)
-        else:
-            Logger.log("d", "Using app instance, which is already running...")
+        Logger.log("d", "Starting %s..." %(self._app_friendlyName))
+        app_instance = win32com.client.Dispatch(self._app_name)
         
-        self.setAppVisible(visible)
+        self.setAppVisible(visible, app_instance = app_instance)
         
-        return self._app_instance
+        return app_instance
     
     def checkApp(self):
         raise NotImplementedError("Checking app is not implemented!")
@@ -112,36 +88,35 @@ class CommonCOMReader(MeshReader):
     def getAppVisible(self, state):
         raise NotImplementedError("Toggle for visibility not implemented!")
     
-    def setAppVisible(self, state):
+    def setAppVisible(self, state, **options):
         raise NotImplementedError("Toggle for visibility not implemented!")
     
     def closeApp(self):
         raise NotImplementedError("Procedure how to close your app is not implemented!")
     
-    def openForeignFile(self, **kwargs):
+    def openForeignFile(self, **options):
         raise NotImplementedError("Opening files is not implemented!")
     
-    def exportFileAs(self, model, **kwargs):
+    def exportFileAs(self, model, **options):
         raise NotImplementedError("Exporting files is not implemented!")
     
-    def closeForeignFile(self, **kwargs):
+    def closeForeignFile(self, **options):
         raise NotImplementedError("Closing files is not implemented!")
     
     def read(self, filePath):
+        Logger.log("d", "Busy: "+repr(self.is_busy))
+        
+        self.is_busy = True
+
         options = {"foreignFile" : filePath,
                    "foreignFormat" : os.path.splitext(filePath)[1],
                   }
         
         # Making our COM connection thread-safe accross the whole plugin
-        pythoncom.CoInitialize()
-        """
-        # In case we hit a problem before and our app was not closed properly...
-        if not self._app_keep_running and self._app_instance is not None:
-            self.closeApp()
-        """
+        pythoncom.CoInitializeEx(pythoncom.COINIT_MULTITHREADED)
         # Starting app, if needed
         try:
-            self.startApp()
+            options["app_instance"] = self.startApp()
         except pywintypes.com_error:
             Logger.logException("e", "Error while starting %s. Maybe the guest application can't verify it's licence, etc.." %(self._app_name))
             error_message = Message(i18n_catalog.i18nc("@info:status", "Error while opening %s. Check whether %s works normally!" %(self._app_friendlyName, self._app_friendlyName)))
@@ -214,14 +189,12 @@ class CommonCOMReader(MeshReader):
         self.closeForeignFile(**options)
         
         # Closing the app again..
-        """
-        if not self._app_keep_running:
-        """
         self.closeApp()
         
         # Turning off thread-safity again...
         pythoncom.CoUninitialize()
 
+        self.is_busy = False
         scene_node = SceneNode()
         mesh = temp_scene_node.getMeshData()
         
