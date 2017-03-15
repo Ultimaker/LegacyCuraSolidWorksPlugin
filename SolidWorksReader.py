@@ -3,10 +3,15 @@
 # TODOs:
 # * Adding selection to separately import parts from an assembly
 
+# Buildins
+import math
+
 # Uranium/Cura
 from UM.i18n import i18nCatalog
 i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
 from UM.Logger import Logger
+from UM.Math.Vector import Vector
+from UM.Math.Quaternion import Quaternion
 
 # Our plugin
 from .CommonComReader import CommonCOMReader
@@ -39,6 +44,7 @@ class SolidWorksReader(CommonCOMReader):
         app_instance = CommonCOMReader.startApp(self, visible=visible)
         
         # Getting revision after starting
+        Logger.log("d", "SolidWorks RevisionNumber: " + app_instance.RevisionNumber)
         self._revision = [int(x) for x in app_instance.RevisionNumber.split(".")]
         self._revision_major = self._revision[0]
         self._revision_minor = self._revision[1]
@@ -153,5 +159,11 @@ class SolidWorksReader(CommonCOMReader):
     
     def areReadersAvailable(self):
         return bool(self._readerForFileformat)
+
+    def nodePostProcessing(self, node):
+        if self._revision_major == 24: # Known problem under SolidWorks 2016: Exported models are rotated by -90 degrees. This rotates it back!
+            rotation = Quaternion.fromAngleAxis(math.radians(90), Vector.Unit_X)
+            node.rotate(rotation)
+        return node
 
     ## Decide if we need to use ascii or binary in order to read file
