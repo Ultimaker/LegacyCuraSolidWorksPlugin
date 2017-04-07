@@ -15,7 +15,7 @@ if Platform.isWindows():
 
     def is_SolidWorks_available():
         try:
-            # Could find a better key to detect whether CATIA is installed..
+            # Could find a better key to detect whether SolidWorks is installed..
             winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, "SldWorks.Application")
             return True
         except:
