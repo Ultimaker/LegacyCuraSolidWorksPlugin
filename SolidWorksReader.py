@@ -117,8 +117,9 @@ class SolidWorksReader(CommonCOMReader):
         self.configuration = self.model.getActiveConfiguration
         self.rootComponent = self.configuration.GetRootComponent
 
-        if filetype == SolidWorksEnums.FileTypes.SWassembly:
-            Logger.log("d", 'walkComponentsInAssembly: ' + repr(self.walkComponentsInAssembly()))
+        ## EXPERIMENTAL: Browse single parts in assembly
+        #if filetype == SolidWorksEnums.FileTypes.SWassembly:
+        #    Logger.log("d", 'walkComponentsInAssembly: ' + repr(self.walkComponentsInAssembly()))
 
     def exportFileAs(self, **options):
         if options["tempType"] == "stl":
