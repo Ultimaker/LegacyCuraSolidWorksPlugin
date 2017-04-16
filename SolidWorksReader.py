@@ -9,6 +9,7 @@ import math
 # Uranium/Cura
 from UM.i18n import i18nCatalog
 i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
+from UM.Message import Message
 from UM.Logger import Logger
 from UM.Math.Vector import Vector
 from UM.Math.Quaternion import Quaternion
@@ -89,7 +90,7 @@ class SolidWorksReader(CommonCOMReader):
             return root
         
         """
-        models = self.model.GetComponents(True)
+        models = options["sw_model"].GetComponents(True)
         
         for model in models:
             #Logger.log("d", model.GetModelDoc2())
@@ -113,13 +114,42 @@ class SolidWorksReader(CommonCOMReader):
         else:
             raise NotImplementedError("Unknown extension. Something went terribly wrong!")
 
-        self.model = options["app_instance"].OpenDoc(options["foreignFile"], filetype)
-        self.configuration = self.model.getActiveConfiguration
-        self.rootComponent = self.configuration.GetRootComponent
+        #options["sw_model"] = options["app_instance"].OpenDoc(options["foreignFile"], filetype)
+        documentSpecification = options["app_instance"].GetOpenDocSpec(options["foreignFile"])
+        
+        ## NOTE: SPEC: FileName
+        #documentSpecification.FileName
+        
+        ## NOTE: SPEC: DocumentType
+        ## TODO: Really needed here?!
+        documentSpecification.DocumentType = filetype
+        
+        ## TODO: Test the impact of LightWeight = True
+        #documentSpecification.LightWeight = True
+        documentSpecification.Silent = True
+        
+        ## TODO: Double check, whether file was really opened read-only..
+        documentSpecification.ReadOnly = True
+        
+        options["sw_model"] = options["app_instance"].OpenDoc7(documentSpecification)
+        
+        if documentSpecification.Warning:
+            Logger.log("w", "Warnings happened while opening your SolidWorks file!")
+        if documentSpecification.Error:
+            Logger.log("e", "Errors happened while opening your SolidWorks file!")
+            error_message = Message(i18n_catalog.i18nc("@info:status", "Errors appeared while opening your SolidWorks file! \
+            Please check, whether it is possible to open your file in SolidWorks itself without any problems as well!" %(self._app_friendlyName)))
+            error_message.show()
+        
+        # Might be useful in the future, but no need for this ATM
+        #self.configuration = self.model.getActiveConfiguration
+        #self.rootComponent = self.configuration.GetRootComponent
 
         ## EXPERIMENTAL: Browse single parts in assembly
         #if filetype == SolidWorksEnums.FileTypes.SWassembly:
         #    Logger.log("d", 'walkComponentsInAssembly: ' + repr(self.walkComponentsInAssembly()))
+        
+        return options
 
     def exportFileAs(self, **options):
         if options["tempType"] == "stl":
@@ -139,7 +169,7 @@ class SolidWorksReader(CommonCOMReader):
             swSTLBinaryFormatBackup = options["app_instance"].GetUserPreferenceToggle(SolidWorksEnums.swUserPreferenceToggle_e.swSTLBinaryFormat)
             options["app_instance"].SetUserPreferenceToggle(SolidWorksEnums.swUserPreferenceToggle_e.swSTLBinaryFormat, True)
         
-        self.model.SaveAs(options["tempFile"])
+        options["sw_model"].SaveAs(options["tempFile"])
         
         if options["tempType"] == "stl":
             # Restoring swSTLBinaryFormat
