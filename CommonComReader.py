@@ -93,6 +93,7 @@ class CommonCOMReader(MeshReader):
         raise NotImplementedError("Procedure how to close your app is not implemented!")
     
     def openForeignFile(self, **options):
+        "This function shall return options again. It optionally contains other data, which is needed by the reader for other tasks later."
         raise NotImplementedError("Opening files is not implemented!")
     
     def exportFileAs(self, model, **options):
@@ -127,7 +128,7 @@ class CommonCOMReader(MeshReader):
         
         # Tell the 3rd party application to open a file...
         Logger.log("d", "Opening file with %s..."  %(self._app_friendlyName))
-        self.openForeignFile(**options)
+        options = self.openForeignFile(**options)
 
         # Append all formats which are not preferred to the end of the list
         fileFormats = self._fileFormatsFirstChoise
