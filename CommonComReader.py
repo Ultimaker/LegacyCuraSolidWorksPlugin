@@ -8,8 +8,8 @@ import tempfile
 from UM.Application import Application
 from UM.i18n import i18nCatalog
 i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
-from UM.Logger import Logger
 from UM.Message import Message
+from UM.Logger import Logger
 from UM.Mesh.MeshReader import MeshReader
 from UM.PluginRegistry import PluginRegistry
 from UM.Scene.SceneNode import SceneNode
