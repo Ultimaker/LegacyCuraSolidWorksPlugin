@@ -1,5 +1,6 @@
 # Copyright (c) 2017 Thomas Karl Pietrowski
 
+
 class SolidWorksEnums:
     class swUserPreferenceToggle_e:
         swSTLBinaryFormat = 69

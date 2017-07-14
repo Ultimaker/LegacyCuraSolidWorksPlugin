@@ -19,10 +19,12 @@ import win32com.client
 import pythoncom
 import pywintypes
 
+
 class CommonCOMReader(MeshReader):    
-    def __init__(self, app_name, app_friendlyName):
+    def __init__(self, app_name, app_friendly_name):
+        super().__init__()
         self._app_name = app_name
-        self._app_friendlyName = app_friendlyName
+        self._app_friendly_name = app_friendly_name
         
         # Start/stop behaviour
         
@@ -48,23 +50,23 @@ class CommonCOMReader(MeshReader):
         self.__init_builtin_readers__()
     
     def __init_builtin_readers__(self):
-        self._fileFormatsFirstChoise = [] # Ordered list of preferred formats
-        self._readerForFileformat = {}
+        self._file_formats_first_choice = [] # Ordered list of preferred formats
+        self._reader_for_file_format = {}
         
         # Trying 3MF first because it describes the model much better..
         # However, this is untested since this plugin was only tested with STL support
         if PluginRegistry.getInstance().isActivePlugin("3MFReader"):
-            self._readerForFileformat["3mf"] = PluginRegistry.getInstance().getPluginObject("3MFReader")
-            self._fileFormatsFirstChoise.append("3mf")
+            self._reader_for_file_format["3mf"] = PluginRegistry.getInstance().getPluginObject("3MFReader")
+            self._file_formats_first_choice.append("3mf")
 
         if PluginRegistry.getInstance().isActivePlugin("STLReader"):
-            self._readerForFileformat["stl"] = PluginRegistry.getInstance().getPluginObject("STLReader")
-            self._fileFormatsFirstChoise.append("stl")
+            self._reader_for_file_format["stl"] = PluginRegistry.getInstance().getPluginObject("STLReader")
+            self._file_formats_first_choice.append("stl")
             
-        if not len(self._readerForFileformat):
+        if not len(self._reader_for_file_format):
             Logger.log("d", "Could not find any reader for (probably) supported file formats!")
     
-    def getSaveTempfileName(self, suffix = "" ):
+    def getSaveTempfileName(self, suffix = ""):
         # Only get a save name for a temp_file here...
         temp_stl_file = tempfile.NamedTemporaryFile()
         temp_stl_file_name = "%s%s" %(temp_stl_file.name, suffix)
@@ -73,7 +75,7 @@ class CommonCOMReader(MeshReader):
         return temp_stl_file_name
     
     def startApp(self, visible = False ):
-        Logger.log("d", "Starting %s..." %(self._app_friendlyName))
+        Logger.log("d", "Starting %s..." % (self._app_friendly_name))
         app_instance = win32com.client.Dispatch(self._app_name)
         
         self.setAppVisible(visible, app_instance = app_instance)
@@ -105,9 +107,9 @@ class CommonCOMReader(MeshReader):
     def nodePostProcessing(self, node):
         return node
     
-    def read(self, filePath):
-        options = {"foreignFile" : filePath,
-                   "foreignFormat" : os.path.splitext(filePath)[1],
+    def read(self, file_path):
+        options = {"foreignFile" : file_path,
+                   "foreignFormat" : os.path.splitext(file_path)[1],
                   }
         
         # Making our COM connection thread-safe accross the whole plugin
@@ -116,50 +118,50 @@ class CommonCOMReader(MeshReader):
         try:
             options["app_instance"] = self.startApp()
         except pywintypes.com_error:
-            Logger.logException("e", "Error while starting %s. Maybe the guest application can't verify it's licence, etc.." %(self._app_name))
-            error_message = Message(i18n_catalog.i18nc("@info:status", "Error while opening %s. Check whether %s works normally!" %(self._app_friendlyName, self._app_friendlyName)))
+            Logger.logException("e", "Error while starting %s. Maybe the guest application can't verify it's licence, etc.." % self._app_name)
+            error_message = Message(i18n_catalog.i18nc("@info:status", "Error while opening %s. Check whether %s works normally!" % (self._app_friendly_name, self._app_friendly_name)))
             error_message.show()
             return None
         except Exception:
-            Logger.logException("e", "Failed to start <%s>..." %(self._app_name))
-            error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting %s!" %(self._app_friendlyName)))
+            Logger.logException("e", "Failed to start <%s>..." % self._app_name)
+            error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting %s!" % self._app_friendly_name))
             error_message.show()
             return None
         
         # Tell the 3rd party application to open a file...
-        Logger.log("d", "Opening file with %s..."  %(self._app_friendlyName))
+        Logger.log("d", "Opening file with %s..." % self._app_friendly_name)
         options = self.openForeignFile(**options)
 
         # Append all formats which are not preferred to the end of the list
-        fileFormats = self._fileFormatsFirstChoise
-        for fileFormat in self._readerForFileformat.keys():
-            if fileFormat not in fileFormats:
-                fileFormats.append(fileFormat)
+        fileFormats = self._file_formats_first_choice
+        for file_format in self._reader_for_file_format.keys():
+            if file_format not in fileFormats:
+                fileFormats.append(file_format)
 
         # Trying to convert into all formats 1 by 1 and continue with the successful export
-        Logger.log("i", "Trying to convert into: %s" %(fileFormats))
-        for fileFormat in fileFormats:
-            Logger.log("d", "Trying to convert <%s> into  '%s'" %(filePath, fileFormat))
+        Logger.log("i", "Trying to convert into: %s" % fileFormats)
+        for file_format in fileFormats:
+            Logger.log("d", "Trying to convert <%s> into  '%s'" % (file_path, file_format))
             
-            options["tempType"] = fileFormat
+            options["tempType"] = file_format
             
-            options["tempFile"] = self.getSaveTempfileName(".%s" %(fileFormat.upper()))
+            options["tempFile"] = self.getSaveTempfileName(".%s" % file_format.upper())
             Logger.log("d", "Using temporary file <%s>" %(options["tempFile"]))
 
             # In case there is already a file with this name (very unlikely...)
             if os.path.isfile(options["tempFile"]):
-                Logger.log("w", "Removing already available file, called: %s" %(options["tempFile"]))
+                Logger.log("w", "Removing already available file, called: %s" % options["tempFile"])
                 os.remove(options["tempFile"])
 
-            Logger.log("d", "Saving as: <%s>" %(options["tempFile"]))
+            Logger.log("d", "Saving as: <%s>" % options["tempFile"])
             try:
                 self.exportFileAs(**options)
             except:
-                Logger.logException("e", "Could not export <%s> into '%s'." %(filePath, fileFormat))
+                Logger.logException("e", "Could not export <%s> into '%s'." % (file_path, file_format))
                 continue
 
             if os.path.isfile(options["tempFile"]):
-                Logger.log("d", "Saved as: <%s>" %(options["tempFile"]))
+                Logger.log("d", "Saved as: <%s>" % options["tempFile"])
             else:
                 Logger.log("d", "Temporary file not found after export!")
                 continue
@@ -171,10 +173,10 @@ class CommonCOMReader(MeshReader):
                 if not reader:
                     Logger.log("d", "Found no reader for %s. That's strange...")
                     continue
-                Logger.log("d", "Using reader: %s" %(reader.getPluginId()))
+                Logger.log("d", "Using reader: %s" % reader.getPluginId())
                 temp_scene_node = reader.read(options["tempFile"])
             except:
-                Logger.logException("e", "Failed to open exported <%s> file in Cura!" %(fileFormat))
+                Logger.logException("e", "Failed to open exported <%s> file in Cura!" % file_format)
                 continue
 
             # Remove the temp_file again
@@ -203,9 +205,8 @@ class CommonCOMReader(MeshReader):
             error_message.show()
             mesh = mesh.set(file_name=None)
         else:
-            mesh = mesh.set(file_name=filePath)
+            mesh = mesh.set(file_name=file_path)
         scene_node.setMeshData(mesh)
 
         if scene_node:
             return scene_node
-        return

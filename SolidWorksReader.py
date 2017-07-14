@@ -8,7 +8,6 @@ import math
 
 # Uranium/Cura
 from UM.i18n import i18nCatalog
-i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
 from UM.Message import Message
 from UM.Logger import Logger
 from UM.Math.Vector import Vector
@@ -18,6 +17,9 @@ from UM.Math.Quaternion import Quaternion
 from .CommonComReader import CommonCOMReader
 from .SolidWorksConstants import SolidWorksEnums
 
+i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
+
+
 class SolidWorksReader(CommonCOMReader):
     def __init__(self):
         self._extension_part = ".SLDPRT"
@@ -26,10 +28,10 @@ class SolidWorksReader(CommonCOMReader):
                                       self._extension_assembly.lower(),
                                       ]
 
-        super(SolidWorksReader, self).__init__("SldWorks.Application", "SolidWorks")
+        super().__init__("SldWorks.Application", "SolidWorks")
         
-        self._convertAssemblyIntoOnce = True # False is not implemented now!
-        
+        self._convert_assembly_into_once = True  # False is not implemented now!
+        self._file_formats_first_choice = []
         self._revision = None
         self._revision_major = None
         self._revision_minor = None
@@ -57,17 +59,17 @@ class SolidWorksReader(CommonCOMReader):
         return app_instance
     
     def updateFormatsFirstChoise(self):
-        self._fileFormatsFirstChoise = ["stl"]
-        if self._revision_major >= 25 and "3mf" in self._readerForFileformat.keys():
-            self._fileFormatsFirstChoise.insert(0, "3mf")
+        self._file_formats_first_choice = ["stl"]
+        if self._revision_major >= 25 and "3mf" in self._reader_for_file_format.keys():
+            self._file_formats_first_choice.insert(0, "3mf")
 
-        return self._fileFormatsFirstChoise
+        return self._file_formats_first_choice
     
     def checkApp(self, **options):
-        functionsToBeChecked = ("OpenDoc", "CloseDoc")
-        for function in functionsToBeChecked:
+        functions_to_be_checked = ("OpenDoc", "CloseDoc")
+        for func in functions_to_be_checked:
             try:
-                getattr(options["app_instance"], function)
+                getattr(options["app_instance"], func)
             except:
                 Logger.logException("e", "Error which occured when checking for a valid app instance")
                 return False
@@ -85,7 +87,7 @@ class SolidWorksReader(CommonCOMReader):
         
         if children:
             children = [self.walkComponentsInAssembly(child) for child in children]
-            return (root, children)
+            return root, children
         else:
             return root
         
@@ -138,7 +140,7 @@ class SolidWorksReader(CommonCOMReader):
         if documentSpecification.Error:
             Logger.log("e", "Errors happened while opening your SolidWorks file!")
             error_message = Message(i18n_catalog.i18nc("@info:status", "Errors appeared while opening your SolidWorks file! \
-            Please check, whether it is possible to open your file in SolidWorks itself without any problems as well!" %(self._app_friendlyName)))
+            Please check, whether it is possible to open your file in SolidWorks itself without any problems as well!" % (self._app_friendly_name)))
             error_message.show()
         
         # Might be useful in the future, but no need for this ATM
@@ -156,7 +158,7 @@ class SolidWorksReader(CommonCOMReader):
             if options["foreignFormat"].upper() == self._extension_assembly:
                 # Backing up current setting of swSTLComponentsIntoOneFile
                 swSTLComponentsIntoOneFileBackup = options["app_instance"].GetUserPreferenceToggle(SolidWorksEnums.UserPreferences.swSTLComponentsIntoOneFile)
-                options["app_instance"].SetUserPreferenceToggle(SolidWorksEnums.UserPreferences.swSTLComponentsIntoOneFile, self._convertAssemblyIntoOnce)
+                options["app_instance"].SetUserPreferenceToggle(SolidWorksEnums.UserPreferences.swSTLComponentsIntoOneFile, self._convert_assembly_into_once)
 
             swExportSTLQualityBackup = options["app_instance"].GetUserPreferenceIntegerValue(SolidWorksEnums.swUserPreferenceIntegerValue_e.swExportSTLQuality)
             options["app_instance"].SetUserPreferenceIntegerValue(SolidWorksEnums.swUserPreferenceIntegerValue_e.swExportSTLQuality, SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine)
@@ -189,7 +191,7 @@ class SolidWorksReader(CommonCOMReader):
         options["app_instance"].CloseDoc(options["foreignFile"])
     
     def areReadersAvailable(self):
-        return bool(self._readerForFileformat)
+        return bool(self._reader_for_file_format)
 
     def nodePostProcessing(self, node):
         if self._revision_major == 24: # Known problem under SolidWorks 2016: Exported models are rotated by -90 degrees. This rotates it back!
