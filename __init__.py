@@ -21,36 +21,33 @@ if Platform.isWindows():
         except:
             return False
 
+
 def getMetaData():
-    return {"plugin": {
-                "name": i18n_catalog.i18nc("@label", "SolidWorksIntegrationPlugin"),
-                "author": "Thomas Karl Pietrowski",
-                "version": "0.1.0",
-                "description": i18n_catalog.i18nc("@info:whatsthis", "Gives you the possibility to open files via SolidWorks itself."),
-                "api": 3
+    return {
+        "mesh_reader":
+        [
+            {
+                "extension": "SLDPRT",
+                "description": i18n_catalog.i18nc("@item:inlistbox", "SolidWorks part file")
             },
-            "mesh_reader": [
-                {
-                    "extension": "SLDPRT",
-                    "description": i18n_catalog.i18nc("@item:inlistbox", "SolidWorks part file")
-                },
-                {
-                    "extension": "SLDASM",
-                    "description": i18n_catalog.i18nc("@item:inlistbox", "SolidWorks assembly file")
-                },
-                
+            {
+                "extension": "SLDASM",
+                "description": i18n_catalog.i18nc("@item:inlistbox", "SolidWorks assembly file")
+            }
+        ]
+    }
 
+    # TODO:
+    # Needs more documentation on how to convert a CATproduct in CATIA using COM API
+    #
+    #{
+    #    "extension": "CATProduct",
+    #    "description": i18n_catalog.i18nc("@item:inlistbox", "CATproduct file")
+    #}
 
-                # Needs more documentation on how to convert a CATproduct in CATIA using COM API
-                #
-                #{
-                #    "extension": "CATProduct",
-                #    "description": i18n_catalog.i18nc("@item:inlistbox", "CATproduct file")
-                #}
-            ]
-		}
 
 def register(app):
+    # Solid works only runs on Windows.
     if Platform.isWindows():
         reader = SolidWorksReader.SolidWorksReader()
         if is_SolidWorks_available() and reader.areReadersAvailable():
