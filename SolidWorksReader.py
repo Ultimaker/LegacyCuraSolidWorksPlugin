@@ -29,7 +29,7 @@ class SolidWorksReader(CommonCOMReader):
                                       ]
 
         super().__init__("SldWorks.Application", "SolidWorks")
-        
+
         self._convert_assembly_into_once = True  # False is not implemented now!
         self._file_formats_first_choice = []
         self._revision = None
@@ -39,32 +39,32 @@ class SolidWorksReader(CommonCOMReader):
 
     def setAppVisible(self, state, **options):
         options["app_instance"].Visible = state
-    
+
     def getAppVisible(self, state, **options):
         return options["app_instance"].Visible
-    
+
     def startApp(self, visible=False):
         app_instance = CommonCOMReader.startApp(self, visible=visible)
-        
+
         # Getting revision after starting
         Logger.log("d", "SolidWorks RevisionNumber: " + app_instance.RevisionNumber)
         self._revision = [int(x) for x in app_instance.RevisionNumber.split(".")]
         self._revision_major = self._revision[0]
         self._revision_minor = self._revision[1]
         self._revision_patch = self._revision[2]
-        
+
         # Re-generate a list of preferred file formats
         self.updateFormatsFirstChoise()
-        
+
         return app_instance
-    
+
     def updateFormatsFirstChoise(self):
         self._file_formats_first_choice = ["stl"]
         if self._revision_major >= 25 and "3mf" in self._reader_for_file_format.keys():
             self._file_formats_first_choice.insert(0, "3mf")
 
         return self._file_formats_first_choice
-    
+
     def checkApp(self, **options):
         functions_to_be_checked = ("OpenDoc", "CloseDoc")
         for func in functions_to_be_checked:
@@ -82,18 +82,18 @@ class SolidWorksReader(CommonCOMReader):
     def walkComponentsInAssembly(self, root = None):
         if root == None:
             root = self.rootComponent
-        
+
         children = root.GetChildren
-        
+
         if children:
             children = [self.walkComponentsInAssembly(child) for child in children]
             return root, children
         else:
             return root
-        
+
         """
         models = options["sw_model"].GetComponents(True)
-        
+
         for model in models:
             #Logger.log("d", model.GetModelDoc2())
             #Logger.log("d", repr(model.GetTitle))
@@ -118,23 +118,23 @@ class SolidWorksReader(CommonCOMReader):
 
         #options["sw_model"] = options["app_instance"].OpenDoc(options["foreignFile"], filetype)
         documentSpecification = options["app_instance"].GetOpenDocSpec(options["foreignFile"])
-        
+
         ## NOTE: SPEC: FileName
         #documentSpecification.FileName
-        
+
         ## NOTE: SPEC: DocumentType
         ## TODO: Really needed here?!
         documentSpecification.DocumentType = filetype
-        
+
         ## TODO: Test the impact of LightWeight = True
         #documentSpecification.LightWeight = True
         documentSpecification.Silent = True
-        
+
         ## TODO: Double check, whether file was really opened read-only..
         documentSpecification.ReadOnly = True
-        
+
         options["sw_model"] = options["app_instance"].OpenDoc7(documentSpecification)
-        
+
         if documentSpecification.Warning:
             Logger.log("w", "Warnings happened while opening your SolidWorks file!")
         if documentSpecification.Error:
@@ -142,7 +142,7 @@ class SolidWorksReader(CommonCOMReader):
             error_message = Message(i18n_catalog.i18nc("@info:status", "Errors appeared while opening your SolidWorks file! \
             Please check, whether it is possible to open your file in SolidWorks itself without any problems as well!" % (self._app_friendly_name)))
             error_message.show()
-        
+
         # Might be useful in the future, but no need for this ATM
         #self.configuration = self.model.getActiveConfiguration
         #self.rootComponent = self.configuration.GetRootComponent
@@ -150,7 +150,7 @@ class SolidWorksReader(CommonCOMReader):
         ## EXPERIMENTAL: Browse single parts in assembly
         #if filetype == SolidWorksEnums.FileTypes.SWassembly:
         #    Logger.log("d", 'walkComponentsInAssembly: ' + repr(self.walkComponentsInAssembly()))
-        
+
         return options
 
     def exportFileAs(self, **options):
@@ -162,34 +162,34 @@ class SolidWorksReader(CommonCOMReader):
 
             swExportSTLQualityBackup = options["app_instance"].GetUserPreferenceIntegerValue(SolidWorksEnums.swUserPreferenceIntegerValue_e.swExportSTLQuality)
             options["app_instance"].SetUserPreferenceIntegerValue(SolidWorksEnums.swUserPreferenceIntegerValue_e.swExportSTLQuality, SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine)
-            
+
             # Changing the default unit for STLs to mm, which is expected by Cura
             swExportStlUnitsBackup = options["app_instance"].GetUserPreferenceIntegerValue(SolidWorksEnums.swUserPreferenceIntegerValue_e.swExportStlUnits)
             options["app_instance"].SetUserPreferenceIntegerValue(SolidWorksEnums.swUserPreferenceIntegerValue_e.swExportStlUnits, SolidWorksEnums.swLengthUnit_e.swMM)
-            
+
             # Changing the output type temporary to binary
             swSTLBinaryFormatBackup = options["app_instance"].GetUserPreferenceToggle(SolidWorksEnums.swUserPreferenceToggle_e.swSTLBinaryFormat)
             options["app_instance"].SetUserPreferenceToggle(SolidWorksEnums.swUserPreferenceToggle_e.swSTLBinaryFormat, True)
-        
+
         options["sw_model"].SaveAs(options["tempFile"])
-        
+
         if options["tempType"] == "stl":
             # Restoring swSTLBinaryFormat
             options["app_instance"].SetUserPreferenceToggle(SolidWorksEnums.swUserPreferenceToggle_e.swSTLBinaryFormat, swSTLBinaryFormatBackup)
-            
+
             # Restoring swExportStlUnits
             options["app_instance"].SetUserPreferenceIntegerValue(SolidWorksEnums.swUserPreferenceIntegerValue_e.swExportStlUnits, swExportStlUnitsBackup)
-            
+
             # Restoring swSTLQuality_Fine
             options["app_instance"].SetUserPreferenceIntegerValue(SolidWorksEnums.swUserPreferenceIntegerValue_e.swExportSTLQuality, swExportSTLQualityBackup)
-            
+
             if options["foreignFormat"].upper() == self._extension_assembly:
                 # Restoring swSTLComponentsIntoOneFile
                 options["app_instance"].SetUserPreferenceToggle(SolidWorksEnums.UserPreferences.swSTLComponentsIntoOneFile, swSTLComponentsIntoOneFileBackup)
-    
+
     def closeForeignFile(self, **options):
         options["app_instance"].CloseDoc(options["foreignFile"])
-    
+
     def areReadersAvailable(self):
         return bool(self._reader_for_file_format)
 
