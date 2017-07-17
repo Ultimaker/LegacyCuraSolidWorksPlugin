@@ -74,7 +74,7 @@ class CommonCOMReader(MeshReader):
 
         return temp_stl_file_name
 
-    def startApp(self, visible = False ):
+    def startApp(self, visible = False):
         Logger.log("d", "Starting %s..." % (self._app_friendly_name))
         app_instance = win32com.client.Dispatch(self._app_name)
 

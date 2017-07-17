@@ -23,20 +23,20 @@ class SolidWorksEnums:
         swMM = 0
         swCM = 1
         swMETER = 2
-        swINCHES =  3
-        swFEET =  4
-        swFEETINCHES =  5
-        swANGSTROM =  6
-        swNANOMETER =  7
-        swMICRON =  8
-        swMIL =  9
+        swINCHES = 3
+        swFEET = 4
+        swFEETINCHES = 5
+        swANGSTROM = 6
+        swNANOMETER = 7
+        swMICRON = 8
+        swMIL = 9
         swUIN = 10
 
     class swUserPreferenceIntegerValue_e:
         swExportSTLQuality = 78
         swExportStlUnits = 211
 
-    class swSTLQuality_e :
+    class swSTLQuality_e:
         swSTLQuality_Coarse = 1
         swSTLQuality_Fine = 2
         swSTLQuality_Custom = 3

@@ -3,7 +3,7 @@
 # TODOs:
 # * Adding selection to separately import parts from an assembly
 
-# Buildins
+# Buildings
 import math
 
 # Uranium/Cura
@@ -36,6 +36,8 @@ class SolidWorksReader(CommonCOMReader):
         self._revision_major = None
         self._revision_minor = None
         self._revision_patch = None
+
+        self.root_component = None
 
     def setAppVisible(self, state, **options):
         options["app_instance"].Visible = state
@@ -71,7 +73,7 @@ class SolidWorksReader(CommonCOMReader):
             try:
                 getattr(options["app_instance"], func)
             except:
-                Logger.logException("e", "Error which occured when checking for a valid app instance")
+                Logger.logException("e", "Error which occurred when checking for a valid app instance")
                 return False
         return True
 
@@ -80,8 +82,8 @@ class SolidWorksReader(CommonCOMReader):
             del(options["app_instance"])
 
     def walkComponentsInAssembly(self, root = None):
-        if root == None:
-            root = self.rootComponent
+        if root is None:
+            root = self.root_component
 
         children = root.GetChildren
 
@@ -145,7 +147,7 @@ class SolidWorksReader(CommonCOMReader):
 
         # Might be useful in the future, but no need for this ATM
         #self.configuration = self.model.getActiveConfiguration
-        #self.rootComponent = self.configuration.GetRootComponent
+        #self.root_component = self.configuration.GetRootComponent
 
         ## EXPERIMENTAL: Browse single parts in assembly
         #if filetype == SolidWorksEnums.FileTypes.SWassembly:
