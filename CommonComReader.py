@@ -15,9 +15,7 @@ from UM.PluginRegistry import PluginRegistry
 from UM.Scene.SceneNode import SceneNode
 
 # PyWin32
-import win32com.client
-import pythoncom
-import pywintypes
+from comtypes.client import GetClassObject
 
 
 class CommonCOMReader(MeshReader):
@@ -75,12 +73,12 @@ class CommonCOMReader(MeshReader):
         return temp_stl_file_name
 
     def startApp(self, visible = False):
-        Logger.log("d", "Starting %s..." % (self._app_friendly_name))
-        app_instance = win32com.client.Dispatch(self._app_name)
+        Logger.log("d", "Starting %s...", self._app_friendly_name)
 
-        self.setAppVisible(visible, app_instance = app_instance)
+        com_class_object = GetClassObject(self._app_name)
+        com_instance = com_class_object.CreateInstance()
 
-        return app_instance
+        return com_instance
 
     def checkApp(self):
         raise NotImplementedError("Checking app is not implemented!")
@@ -112,16 +110,9 @@ class CommonCOMReader(MeshReader):
                    "foreignFormat": os.path.splitext(file_path)[1],
                    }
 
-        # Making our COM connection thread-safe across the whole plugin
-        pythoncom.CoInitializeEx(pythoncom.COINIT_MULTITHREADED)
         # Starting app, if needed
         try:
             options["app_instance"] = self.startApp()
-        except pywintypes.com_error:
-            Logger.logException("e", "Error while starting %s. Maybe the guest application can't verify it's licence, etc..", self._app_name)
-            error_message = Message(i18n_catalog.i18nc("@info:status", "Error while opening %s. Check whether %s works normally!" % (self._app_friendly_name, self._app_friendly_name)))
-            error_message.show()
-            return None
         except Exception:
             Logger.logException("e", "Failed to start <%s>...", self._app_name)
             error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting %s!" % self._app_friendly_name))
@@ -190,9 +181,6 @@ class CommonCOMReader(MeshReader):
 
         # Closing the app again..
         self.closeApp(**options)
-
-        # Turning off thread-safety again...
-        pythoncom.CoUninitialize()
 
         scene_node = SceneNode()
         temp_scene_node = self.nodePostProcessing(temp_scene_node)

@@ -5,7 +5,6 @@
 
 # Buildings
 import math
-import os
 
 # Uranium/Cura
 from UM.i18n import i18nCatalog
@@ -47,11 +46,12 @@ class SolidWorksReader(CommonCOMReader):
         return options["app_instance"].Visible
 
     def startApp(self, visible=False):
-        app_instance = CommonCOMReader.startApp(self, visible=visible)
+        app_instance = super().startApp(visible = visible)
 
         # Getting revision after starting
-        Logger.log("d", "SolidWorks RevisionNumber: " + app_instance.RevisionNumber)
-        self._revision = [int(x) for x in app_instance.RevisionNumber.split(".")]
+        revision_number = app_instance.RevisionNumber()
+        Logger.log("d", "SolidWorks RevisionNumber: %s", revision_number)
+        self._revision = [int(x) for x in revision_number.split(".")]
         self._revision_major = self._revision[0]
         self._revision_minor = self._revision[1]
         self._revision_patch = self._revision[2]
@@ -80,7 +80,7 @@ class SolidWorksReader(CommonCOMReader):
 
     def closeApp(self, **options):
         if "app_instance" in options.keys():
-            del(options["app_instance"])
+            del options["app_instance"]
 
     def walkComponentsInAssembly(self, root = None):
         if root is None:
@@ -136,7 +136,7 @@ class SolidWorksReader(CommonCOMReader):
         ## TODO: Double check, whether file was really opened read-only..
         documentSpecification.ReadOnly = True
 
-        options["sw_model"] = options["app_instance"].OpenDoc7(documentSpecification)
+        options["sw_model"] = options["app_instance"].OpenDoc7(documentSpecification._comobj)
 
         if documentSpecification.Warning:
             Logger.log("w", "Warnings happened while opening your SolidWorks file!")
