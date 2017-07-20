@@ -5,6 +5,7 @@
 
 # Buildings
 import math
+import os
 
 # Uranium/Cura
 from UM.i18n import i18nCatalog
@@ -22,13 +23,13 @@ i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
 
 class SolidWorksReader(CommonCOMReader):
     def __init__(self):
+        super().__init__("SldWorks.Application", "SolidWorks")
+
         self._extension_part = ".SLDPRT"
         self._extension_assembly = ".SLDASM"
         self._supported_extensions = [self._extension_part.lower(),
                                       self._extension_assembly.lower(),
                                       ]
-
-        super().__init__("SldWorks.Application", "SolidWorks")
 
         self._convert_assembly_into_once = True  # False is not implemented now!
         self._file_formats_first_choice = []
