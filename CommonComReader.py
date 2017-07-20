@@ -69,7 +69,7 @@ class CommonCOMReader(MeshReader):
     def getSaveTempfileName(self, suffix = ""):
         # Only get a save name for a temp_file here...
         temp_stl_file = tempfile.NamedTemporaryFile()
-        temp_stl_file_name = "%s%s" %(temp_stl_file.name, suffix)
+        temp_stl_file_name = "%s%s" % (temp_stl_file.name, suffix)
         temp_stl_file.close()
 
         return temp_stl_file_name
@@ -112,18 +112,18 @@ class CommonCOMReader(MeshReader):
                    "foreignFormat": os.path.splitext(file_path)[1],
                    }
 
-        # Making our COM connection thread-safe accross the whole plugin
+        # Making our COM connection thread-safe across the whole plugin
         pythoncom.CoInitializeEx(pythoncom.COINIT_MULTITHREADED)
         # Starting app, if needed
         try:
             options["app_instance"] = self.startApp()
         except pywintypes.com_error:
-            Logger.logException("e", "Error while starting %s. Maybe the guest application can't verify it's licence, etc.." % self._app_name)
+            Logger.logException("e", "Error while starting %s. Maybe the guest application can't verify it's licence, etc..", self._app_name)
             error_message = Message(i18n_catalog.i18nc("@info:status", "Error while opening %s. Check whether %s works normally!" % (self._app_friendly_name, self._app_friendly_name)))
             error_message.show()
             return None
         except Exception:
-            Logger.logException("e", "Failed to start <%s>..." % self._app_name)
+            Logger.logException("e", "Failed to start <%s>...", self._app_name)
             error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting %s!" % self._app_friendly_name))
             error_message.show()
             return None
@@ -139,29 +139,29 @@ class CommonCOMReader(MeshReader):
                 fileFormats.append(file_format)
 
         # Trying to convert into all formats 1 by 1 and continue with the successful export
-        Logger.log("i", "Trying to convert into: %s" % fileFormats)
+        Logger.log("i", "Trying to convert into: %s", fileFormats)
         for file_format in fileFormats:
-            Logger.log("d", "Trying to convert <%s> into  '%s'" % (file_path, file_format))
+            Logger.log("d", "Trying to convert <%s> into '%s'", file_path, file_format)
 
             options["tempType"] = file_format
 
             options["tempFile"] = self.getSaveTempfileName(".%s" % file_format.upper())
-            Logger.log("d", "Using temporary file <%s>" %(options["tempFile"]))
+            Logger.log("d", "Using temporary file <%s>", options["tempFile"])
 
             # In case there is already a file with this name (very unlikely...)
             if os.path.isfile(options["tempFile"]):
-                Logger.log("w", "Removing already available file, called: %s" % options["tempFile"])
+                Logger.log("w", "Removing already available file, called: %s", options["tempFile"])
                 os.remove(options["tempFile"])
 
-            Logger.log("d", "Saving as: <%s>" % options["tempFile"])
+            Logger.log("d", "Saving as: <%s>", options["tempFile"])
             try:
                 self.exportFileAs(**options)
             except:
-                Logger.logException("e", "Could not export <%s> into '%s'." % (file_path, file_format))
+                Logger.logException("e", "Could not export <%s> into '%s'.", file_path, file_format)
                 continue
 
             if os.path.isfile(options["tempFile"]):
-                Logger.log("d", "Saved as: <%s>" % options["tempFile"])
+                Logger.log("d", "Saved as: <%s>", options["tempFile"])
             else:
                 Logger.log("d", "Temporary file not found after export!")
                 continue
@@ -173,10 +173,10 @@ class CommonCOMReader(MeshReader):
                 if not reader:
                     Logger.log("d", "Found no reader for %s. That's strange...")
                     continue
-                Logger.log("d", "Using reader: %s" % reader.getPluginId())
+                Logger.log("d", "Using reader: %s", reader.getPluginId())
                 temp_scene_node = reader.read(options["tempFile"])
             except:
-                Logger.logException("e", "Failed to open exported <%s> file in Cura!" % file_format)
+                Logger.logException("e", "Failed to open exported <%s> file in Cura!", file_format)
                 continue
 
             # Remove the temp_file again
@@ -191,7 +191,7 @@ class CommonCOMReader(MeshReader):
         # Closing the app again..
         self.closeApp(**options)
 
-        # Turning off thread-safity again...
+        # Turning off thread-safety again...
         pythoncom.CoUninitialize()
 
         scene_node = SceneNode()
@@ -203,9 +203,9 @@ class CommonCOMReader(MeshReader):
         if type(mesh) == list:
             error_message = Message(i18n_catalog.i18nc("@info:status", "Please keep in mind, that you have to reopen your SolidWorks file manually! Reloading the model won't work!"))
             error_message.show()
-            mesh = mesh.set(file_name=None)
+            mesh = mesh.set(file_name = None)
         else:
-            mesh = mesh.set(file_name=file_path)
+            mesh = mesh.set(file_name = file_path)
         scene_node.setMeshData(mesh)
 
         if scene_node:
