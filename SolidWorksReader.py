@@ -12,10 +12,12 @@ from UM.Message import Message
 from UM.Logger import Logger
 from UM.Math.Vector import Vector
 from UM.Math.Quaternion import Quaternion
+from UM.Mesh.MeshReader import MeshReader
 
 # Our plugin
 from .CommonComReader import CommonCOMReader
 from .SolidWorksConstants import SolidWorksEnums
+from .SolidWorksReaderUI import SolidWorksReaderUI
 
 i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
 
@@ -37,7 +39,31 @@ class SolidWorksReader(CommonCOMReader):
         self._revision_minor = None
         self._revision_patch = None
 
+        self._ui = SolidWorksReaderUI()
+        self._selected_quality = None
+        self._quality_value_map = {"coarse": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Coarse,
+                                   "find": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine}
+
         self.root_component = None
+
+    def preRead(self, file_name, *args, **kwargs):
+        self._ui.showConfigUI()
+        self._ui.waitForUIToClose()
+
+        if self._ui.getCancelled():
+            return MeshReader.PreReadResult.cancelled
+
+        # get quality
+        self._selected_quality = self._ui.quality
+        if self._selected_quality is None:
+            self._selected_quality = "fine"
+        self._selected_quality = self._selected_quality.lower()
+
+        # give actual value for quality
+        self._selected_quality = self._quality_value_map.get(self._selected_quality,
+                                                             SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine)
+
+        return MeshReader.PreReadResult.accepted
 
     def setAppVisible(self, state, **options):
         options["app_instance"].Visible = state
