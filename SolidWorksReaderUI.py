@@ -63,7 +63,7 @@ class SolidWorksReaderUI(QObject):
             Preferences.getInstance().setValue("cura_solidworks/choice_on_exporting_stl_quality", "always_ask")
         else:
             choice = "always_use_fine"
-            if quality.lower() == "coarse":
+            if quality == "coarse":
                 choice = "always_use_coarse"
             Preferences.getInstance().setValue("cura_solidworks/choice_on_exporting_stl_quality", choice)
 

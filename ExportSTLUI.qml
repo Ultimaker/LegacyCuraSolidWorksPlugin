@@ -53,7 +53,16 @@ UM.Dialog
                 ComboBox
                 {
                     id: qualityDropdown
-                    model: ["Coarse", "Fine"]
+                    model: ListModel
+                    {
+                        id: qualityModel
+
+                        Component.onCompleted:
+                        {
+                            append({ text: catalog.i18nc("@option:curaSolidworksStlQuality", "Coarse"), code: "coarse" });
+                            append({ text: catalog.i18nc("@option:curaSolidworksStlQuality", "Fine"), code: "fine" });
+                        }
+                    }
                     currentIndex: 1
                 }
             }
@@ -79,7 +88,7 @@ UM.Dialog
             text: catalog.i18nc("@action:button", "OK")
             onClicked:
             {
-                manager.setQuality(qualityDropdown.currentText, rememberChoiceCheckBox.checked);
+                manager.setQuality(qualityModel.get(qualityDropdown.currentIndex).code, rememberChoiceCheckBox.checked);
                 manager.onOkButtonClicked();
             }
             enabled: true
