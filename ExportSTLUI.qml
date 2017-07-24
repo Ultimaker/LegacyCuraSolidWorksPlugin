@@ -7,6 +7,7 @@ import QtQuick.Layouts 1.1
 import QtQuick.Window 2.1
 
 import UM 1.2 as UM
+import Cura 1.0 as Cura
 
 UM.Dialog
 {
@@ -23,6 +24,7 @@ UM.Dialog
         if (visible)
         {
             qualityDropdown.currentIndex = 1;
+            rememberChoiceCheckBox.checked = UM.Preferences.getValue("cura_solidworks/choice_on_exporting_stl_quality") != "always_ask";
         }
     }
 
@@ -44,7 +46,7 @@ UM.Dialog
 
                 Label {
                     text: catalog.i18nc("@action:label", "STL Quality")
-                    width: 50
+                    width: 100
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
@@ -56,6 +58,18 @@ UM.Dialog
                 }
             }
         }
+
+        Row
+        {
+            width: parent.width
+
+            CheckBox
+            {
+                id: rememberChoiceCheckBox
+                text: catalog.i18nc("@text:window", "Remember my choice")
+                checked: UM.Preferences.getValue("cura_solidworks/choice_on_exporting_stl_quality") != "always_ask"
+            }
+        }
     }
 
     rightButtons: [
@@ -65,7 +79,7 @@ UM.Dialog
             text: catalog.i18nc("@action:button", "OK")
             onClicked:
             {
-                manager.setQuality(qualityDropdown.currentText);
+                manager.setQuality(qualityDropdown.currentText, rememberChoiceCheckBox.checked);
                 manager.onOkButtonClicked();
             }
             enabled: true
@@ -74,7 +88,10 @@ UM.Dialog
         {
             id: cancel_button
             text: catalog.i18nc("@action:button", "Cancel")
-            onClicked: { manager.onCancelButtonClicked() }
+            onClicked:
+            {
+                manager.onCancelButtonClicked();
+            }
             enabled: true
         }
     ]
