@@ -43,7 +43,7 @@ UM.Dialog
                 width: parent.width
 
                 Label {
-                    text: catalog.i18nc("@action:label", "Quality")
+                    text: catalog.i18nc("@action:label", "STL Quality")
                     width: 50
                     anchors.verticalCenter: parent.verticalCenter
                 }
