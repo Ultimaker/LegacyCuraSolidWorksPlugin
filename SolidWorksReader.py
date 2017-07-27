@@ -5,7 +5,6 @@
 
 # Buildings
 import math
-import os
 
 # Uranium/Cura
 from UM.i18n import i18nCatalog
@@ -13,10 +12,12 @@ from UM.Message import Message
 from UM.Logger import Logger
 from UM.Math.Vector import Vector
 from UM.Math.Quaternion import Quaternion
+from UM.Mesh.MeshReader import MeshReader
 
 # Our plugin
 from .CommonComReader import CommonCOMReader
 from .SolidWorksConstants import SolidWorksEnums
+from .SolidWorksReaderUI import SolidWorksReaderUI
 
 i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
 
@@ -38,7 +39,31 @@ class SolidWorksReader(CommonCOMReader):
         self._revision_minor = None
         self._revision_patch = None
 
+        self._ui = SolidWorksReaderUI()
+        self._selected_quality = None
+        self._quality_value_map = {"coarse": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Coarse,
+                                   "find": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine}
+
         self.root_component = None
+
+    def preRead(self, file_name, *args, **kwargs):
+        self._ui.showConfigUI()
+        self._ui.waitForUIToClose()
+
+        if self._ui.getCancelled():
+            return MeshReader.PreReadResult.cancelled
+
+        # get quality
+        self._selected_quality = self._ui.quality
+        if self._selected_quality is None:
+            self._selected_quality = "fine"
+        self._selected_quality = self._selected_quality.lower()
+
+        # give actual value for quality
+        self._selected_quality = self._quality_value_map.get(self._selected_quality,
+                                                             SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine)
+
+        return MeshReader.PreReadResult.accepted
 
     def setAppVisible(self, state, **options):
         options["app_instance"].Visible = state
@@ -47,11 +72,12 @@ class SolidWorksReader(CommonCOMReader):
         return options["app_instance"].Visible
 
     def startApp(self, visible=False):
-        app_instance = CommonCOMReader.startApp(self, visible=visible)
+        app_instance = super().startApp(visible = visible)
 
         # Getting revision after starting
-        Logger.log("d", "SolidWorks RevisionNumber: " + app_instance.RevisionNumber)
-        self._revision = [int(x) for x in app_instance.RevisionNumber.split(".")]
+        revision_number = app_instance.RevisionNumber()
+        Logger.log("d", "SolidWorks RevisionNumber: %s", revision_number)
+        self._revision = [int(x) for x in revision_number.split(".")]
         self._revision_major = self._revision[0]
         self._revision_minor = self._revision[1]
         self._revision_patch = self._revision[2]
@@ -80,7 +106,7 @@ class SolidWorksReader(CommonCOMReader):
 
     def closeApp(self, **options):
         if "app_instance" in options.keys():
-            del(options["app_instance"])
+            del options["app_instance"]
 
     def walkComponentsInAssembly(self, root = None):
         if root is None:
@@ -136,7 +162,7 @@ class SolidWorksReader(CommonCOMReader):
         ## TODO: Double check, whether file was really opened read-only..
         documentSpecification.ReadOnly = True
 
-        options["sw_model"] = options["app_instance"].OpenDoc7(documentSpecification)
+        options["sw_model"] = options["app_instance"].OpenDoc7(documentSpecification._comobj)
 
         if documentSpecification.Warning:
             Logger.log("w", "Warnings happened while opening your SolidWorks file!")

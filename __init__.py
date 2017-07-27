@@ -48,8 +48,11 @@ def getMetaData():
 
 def register(app):
     # Solid works only runs on Windows.
+    plugin_data = {}
     if Platform.isWindows():
         reader = SolidWorksReader.SolidWorksReader()
         if is_SolidWorks_available() and reader.areReadersAvailable():
-            return {"mesh_reader": reader}
-    return {}
+            plugin_data["mesh_reader"] = reader
+        from .ConfigDialog import ConfigDialog
+        plugin_data["extension"] = ConfigDialog()
+    return plugin_data
