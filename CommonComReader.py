@@ -62,7 +62,9 @@ class CommonCOMReader(MeshReader):
             self._file_formats_first_choice.append("stl")
 
         if not len(self._reader_for_file_format):
-            Logger.log("d", "Could not find any reader for (probably) supported file formats!")
+            Logger.log("d", "Could not find any reader for (probably) supported file formats, using STL by default")
+            self._reader_for_file_format["stl"] = PluginRegistry.getInstance().getPluginObject("STLReader")
+            self._file_formats_first_choice.append("stl")
 
     def getSaveTempfileName(self, suffix = ""):
         # Only get a save name for a temp_file here...
