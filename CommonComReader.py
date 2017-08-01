@@ -15,6 +15,7 @@ from UM.PluginRegistry import PluginRegistry
 from UM.Scene.SceneNode import SceneNode
 
 # PyWin32
+import comtypes
 from comtypes.client import GetClassObject
 
 
@@ -108,6 +109,14 @@ class CommonCOMReader(MeshReader):
         return node
 
     def read(self, file_path):
+        # make sure to initialize and de-initialize COM
+        comtypes.CoInitializeEx(comtypes.COINIT_MULTITHREADED)
+        try:
+            return self._read(file_path)
+        finally:
+            comtypes.CoUninitialize()
+
+    def _read(self, file_path):
         options = {"foreignFile": file_path,
                    "foreignFormat": os.path.splitext(file_path)[1],
                    }
