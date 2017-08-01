@@ -142,6 +142,7 @@ class CommonCOMReader(MeshReader):
 
         # Trying to convert into all formats 1 by 1 and continue with the successful export
         Logger.log("i", "Trying to convert into: %s", fileFormats)
+        temp_scene_node = None
         for file_format in fileFormats:
             Logger.log("d", "Trying to convert <%s> into '%s'", file_path, file_format)
 
@@ -194,6 +195,9 @@ class CommonCOMReader(MeshReader):
         self.closeApp(**options)
 
         scene_node = SceneNode()
+        if temp_scene_node is None:
+            return scene_node
+
         temp_scene_node = self.nodePostProcessing(temp_scene_node)
         mesh = temp_scene_node.getMeshDataTransformed()
 
