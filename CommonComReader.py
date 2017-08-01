@@ -196,7 +196,7 @@ class CommonCOMReader(MeshReader):
 
         scene_node = SceneNode()
         if temp_scene_node is None:
-            return scene_node
+            return None
 
         temp_scene_node = self.nodePostProcessing(temp_scene_node)
         mesh = temp_scene_node.getMeshDataTransformed()
