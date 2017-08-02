@@ -131,7 +131,7 @@ class CommonCOMReader(MeshReader):
             return None
 
         # Tell the 3rd party application to open a file...
-        Logger.log("d", "Opening file with %s..." % self._app_friendly_name)
+        Logger.log("d", "Opening file with %s...", self._app_friendly_name)
         options = self.openForeignFile(**options)
 
         # Append all formats which are not preferred to the end of the list
