@@ -95,7 +95,7 @@ class SolidWorksReader(CommonCOMReader):
         return self._file_formats_first_choice
 
     def checkApp(self, **options):
-        functions_to_be_checked = ("OpenDoc", "CloseDoc")
+        functions_to_be_checked = ("OpenDoc", "QuitDoc")
         for func in functions_to_be_checked:
             try:
                 getattr(options["app_instance"], func)
@@ -106,7 +106,10 @@ class SolidWorksReader(CommonCOMReader):
 
     def closeApp(self, **options):
         if options.get("app_instance") is not None:
-            options["app_instance"].ExitApp()
+            try:
+                options["app_instance"].QuitDoc(options["sw_model"].GetTitle())
+            except:
+                Logger.logException("e", "failed to quit doc")
             del options["app_instance"]
 
     def walkComponentsInAssembly(self, root = None):
@@ -147,27 +150,31 @@ class SolidWorksReader(CommonCOMReader):
             raise NotImplementedError("Unknown extension. Something went terribly wrong!")
 
         #options["sw_model"] = options["app_instance"].OpenDoc(options["foreignFile"], filetype)
-        documentSpecification = options["app_instance"].GetOpenDocSpec(options["foreignFile"])
+        #documentSpecification = options["app_instance"].GetOpenDocSpec(options["foreignFile"])
 
         ## NOTE: SPEC: FileName
         #documentSpecification.FileName
 
         ## NOTE: SPEC: DocumentType
         ## TODO: Really needed here?!
-        documentSpecification.DocumentType = filetype
+        #documentSpecification.DocumentType = filetype
 
         ## TODO: Test the impact of LightWeight = True
         #documentSpecification.LightWeight = True
-        documentSpecification.Silent = True
+        #documentSpecification.Silent = True
 
         ## TODO: Double check, whether file was really opened read-only..
-        documentSpecification.ReadOnly = True
+        #documentSpecification.ReadOnly = True
 
-        options["sw_model"] = options["app_instance"].OpenDoc7(documentSpecification._comobj)
+        doc_options = SolidWorksEnums.swOpenDocOptions_e.swOpenDocOptions_Silent | SolidWorksEnums.swOpenDocOptions_e.swOpenDocOptions_ReadOnly
 
-        if documentSpecification.Warning:
+        errors, warnings, doc = options["app_instance"].OpenDoc6(options["foreignFile"], filetype, doc_options, "")
+
+        options["sw_model"] = doc
+
+        if warnings > 0:
             Logger.log("w", "Warnings happened while opening your SolidWorks file!")
-        if documentSpecification.Error:
+        if errors > 0:
             Logger.log("e", "Errors happened while opening your SolidWorks file!")
             error_message = Message(i18n_catalog.i18nc("@info:status", "Errors appeared while opening your SolidWorks file! \
             Please check, whether it is possible to open your file in SolidWorks itself without any problems as well!" % (self._app_friendly_name)))
@@ -218,7 +225,10 @@ class SolidWorksReader(CommonCOMReader):
                 options["app_instance"].SetUserPreferenceToggle(SolidWorksEnums.UserPreferences.swSTLComponentsIntoOneFile, swSTLComponentsIntoOneFileBackup)
 
     def closeForeignFile(self, **options):
-        options["app_instance"].CloseDoc(options["foreignFile"])
+        try:
+            options["app_instance"].QuitDoc(options["sw_model"].GetTitle())
+        except:
+            Logger.logException("e", "failed to quit doc")
 
     def areReadersAvailable(self):
         return bool(self._reader_for_file_format)

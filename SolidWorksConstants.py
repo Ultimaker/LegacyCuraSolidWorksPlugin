@@ -11,6 +11,17 @@ class SolidWorksEnums:
         swDocASSEMBLY = 2
         swDocDRAWING = 3
 
+    class swOpenDocOptions_e:
+        swOpenDocOptions_AutoMissingConfig = 32
+        swOpenDocOptions_DontLoadHiddenComponents = 256
+        swOpenDocOptions_LoadLightweight = 128
+        swOpenDocOptions_LoadModel = 16
+        swOpenDocOptions_OverrideDefaultLoadLightweight = 64
+        swOpenDocOptions_RapidDraft = 8
+        swOpenDocOptions_ReadOnly = 2
+        swOpenDocOptions_Silent = 1
+        swOpenDocOptions_ViewOnly = 4
+
     class FileTypes:
         # Enums to open files
         SWpart = 1
