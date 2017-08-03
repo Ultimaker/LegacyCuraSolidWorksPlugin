@@ -119,11 +119,6 @@ class SolidWorksReader(CommonCOMReader):
 
     def closeApp(self, **options):
         if options.get("app_instance") is not None:
-            try:
-                options["app_instance"].QuitDoc(options["sw_model"].GetTitle())
-            except:
-                Logger.logException("w", "failed to quit doc")
-
             # close this instance if it was created by us
             current_process_id = options["app_instance"].GetProcessID()
             was_process_already_running = False
