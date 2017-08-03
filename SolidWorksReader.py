@@ -18,6 +18,7 @@ from UM.Mesh.MeshReader import MeshReader
 from .CommonComReader import CommonCOMReader
 from .SolidWorksConstants import SolidWorksEnums
 from .SolidWorksReaderUI import SolidWorksReaderUI
+from .utils import getAllRunningProcesses
 
 i18n_catalog = i18nCatalog("CuraSolidWorksIntegrationPlugin")
 
@@ -45,6 +46,7 @@ class SolidWorksReader(CommonCOMReader):
                                    "find": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine}
 
         self.root_component = None
+        self._running_processes_before_start = None
 
     def preRead(self, file_name, *args, **kwargs):
         self._ui.showConfigUI()
@@ -72,6 +74,17 @@ class SolidWorksReader(CommonCOMReader):
         return options["app_instance"].Visible
 
     def startApp(self, visible=False):
+        # Get all running processes before we start/reuse SolidWorks so we know whether the SolidWorks process we
+        # are using is newly created or reused.
+        #  - if it is newly created, it will be closed at the end.
+        #  - if it is reused, we assume that it is reusing a SolidWorks that was started by user, so don't close it
+        #    at the end.
+        try:
+            self._running_processes_before_start = getAllRunningProcesses()
+        except:
+            self._running_processes_before_start = None
+            Logger.logException("w", "Failed to get all running processes.")
+
         app_instance = super().startApp(visible = visible)
 
         # Getting revision after starting
@@ -109,7 +122,19 @@ class SolidWorksReader(CommonCOMReader):
             try:
                 options["app_instance"].QuitDoc(options["sw_model"].GetTitle())
             except:
-                Logger.logException("e", "failed to quit doc")
+                Logger.logException("w", "failed to quit doc")
+
+            # close this instance if it was created by us
+            current_process_id = options["app_instance"].GetProcessID()
+            was_process_already_running = False
+            if self._running_processes_before_start:
+                for process_data in self._running_processes_before_start:
+                    if current_process_id == process_data["process_id"]:
+                        was_process_already_running = True
+                        break
+            if not was_process_already_running:
+                options["app_instance"].ExitApp()
+
             del options["app_instance"]
 
     def walkComponentsInAssembly(self, root = None):
