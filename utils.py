@@ -2,14 +2,12 @@
 
 import subprocess
 
-
+##  If successful returns a list of all currently running processes, including
+#   the following fields:
+#   - caption: Caption of the process, usually looks like this: "<something>.exe"
+#   - process_id: process ID
+#   If unsuccessful, return None.
 def getAllRunningProcesses():
-    """
-    If successful returns a list of all currently running processes, including the following fields:
-       - caption: Caption of the process, usually looks like this: "<something>.exe"
-       - process_id: process ID
-    If unsuccessful, return None.
-    """
     args = ["wmic", "/OUTPUT:STDOUT", "PROCESS", "get", "Caption,ProcessId"]
     p = subprocess.Popen(args, stdout=subprocess.PIPE)
 
