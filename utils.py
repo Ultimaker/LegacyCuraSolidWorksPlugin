@@ -10,10 +10,10 @@ import subprocess
 #   If unsuccessful, return None.
 def getAllRunningProcesses():
     args = ["wmic", "/OUTPUT:STDOUT", "PROCESS", "get", "Caption,ProcessId"]
-    p = subprocess.Popen(args, stdout=subprocess.PIPE)
+    p = subprocess.Popen(args, stdout = subprocess.PIPE)
 
     out, _ = p.communicate()
-    out = out.decode('utf-8')
+    out = out.decode("utf-8")
 
     # sanitize the newline characters
     out = out.replace("\r\n", "\n")
