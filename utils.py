@@ -1,4 +1,5 @@
 # Copyright (c) 2017 Ultimaker B.V.
+# CuraSolidWorksPlugin is released under the terms of the LGPLv3 or higher.
 
 import subprocess
 
@@ -14,7 +15,7 @@ def getAllRunningProcesses():
     out, _ = p.communicate()
     out = out.decode('utf-8')
 
-    # sanetize the newline characters
+    # sanitize the newline characters
     out = out.replace("\r\n", "\n")
     out = out.replace("\r", "\n")
     while out.find("\n\n") != -1:
