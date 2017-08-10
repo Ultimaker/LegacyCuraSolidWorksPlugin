@@ -219,8 +219,9 @@ class SolidWorksReader(CommonCOMReader):
     def closeForeignFile(self, **options):
         options["app_instance"].CloseDoc(options["foreignFile"])
 
-    def areReadersAvailable(self):
-        return bool(self._reader_for_file_format)
+    ## TODO: A functionality like this needs to come back as soon as we have something like a dependency resolver for plugins.
+    #def areReadersAvailable(self):
+    #    return bool(self._reader_for_file_format)
 
     def nodePostProcessing(self, node):
         if self._revision_major == 24: # Known problem under SolidWorks 2016: Exported models are rotated by -90 degrees. This rotates it back!
