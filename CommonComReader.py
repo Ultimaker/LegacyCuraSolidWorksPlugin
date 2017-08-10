@@ -69,8 +69,8 @@ class CommonCOMReader(MeshReader):
 
     def getSaveTempfileName(self, suffix = ""):
         # Only get a save name for a temp_file here...
-        temp_stl_file = tempfile.NamedTemporaryFile()
-        temp_stl_file_name = "%s%s" % (temp_stl_file.name, suffix)
+        temp_stl_file = tempfile.NamedTemporaryFile(suffix = suffix, delete = False)
+        temp_stl_file_name = temp_stl_file.name
         temp_stl_file.close()
 
         return temp_stl_file_name
