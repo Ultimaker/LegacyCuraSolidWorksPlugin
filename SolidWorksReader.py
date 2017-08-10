@@ -3,7 +3,7 @@
 # TODOs:
 # * Adding selection to separately import parts from an assembly
 
-# Buildings
+# Build-ins
 import math
 
 # Uranium/Cura
