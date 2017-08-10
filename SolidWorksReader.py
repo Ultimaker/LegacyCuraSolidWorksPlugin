@@ -211,7 +211,7 @@ class SolidWorksReader(CommonCOMReader):
         return options
 
     def exportFileAs(self, **options):
-        if options["tempType"] == "stl":
+        if options["tempType"] in ("stl", "3mf"):
             if options["foreignFormat"].upper() == self._extension_assembly:
                 # Backing up current setting of swSTLComponentsIntoOneFile
                 swSTLComponentsIntoOneFileBackup = options["app_instance"].GetUserPreferenceToggle(SolidWorksEnums.UserPreferences.swSTLComponentsIntoOneFile)
@@ -230,7 +230,7 @@ class SolidWorksReader(CommonCOMReader):
 
         options["sw_model"].SaveAs(options["tempFile"])
 
-        if options["tempType"] == "stl":
+        if options["tempType"] in ("stl", "3mf"):
             # Restoring swSTLBinaryFormat
             options["app_instance"].SetUserPreferenceToggle(SolidWorksEnums.swUserPreferenceToggle_e.swSTLBinaryFormat, swSTLBinaryFormatBackup)
 
