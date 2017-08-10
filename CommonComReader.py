@@ -183,7 +183,7 @@ class CommonCOMReader(MeshReader):
                 continue
 
             # Remove the temp_file again
-            Logger.log("d", "Removing temporary STL file, called <%s>", options["tempFile"])
+            Logger.log("d", "Removing temporary %s file, called <%s>", file_format, options["tempFile"])
             os.remove(options["tempFile"])
 
             break
