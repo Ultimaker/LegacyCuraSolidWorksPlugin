@@ -174,7 +174,7 @@ class CommonCOMReader(MeshReader):
                 #reader = self._readerForFileformat[fileFormat]
                 reader = Application.getInstance().getMeshFileHandler().getReaderForFile(options["tempFile"])
                 if not reader:
-                    Logger.log("d", "Found no reader for %s. That's strange...")
+                    Logger.log("d", "Found no reader for %s. That's strange...", file_format)
                     continue
                 Logger.log("d", "Using reader: %s", reader.getPluginId())
                 temp_scene_node = reader.read(options["tempFile"])
