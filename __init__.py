@@ -51,7 +51,7 @@ def register(app):
     plugin_data = {}
     if Platform.isWindows():
         reader = SolidWorksReader.SolidWorksReader()
-        if is_SolidWorks_available() and reader.areReadersAvailable():
+        if is_SolidWorks_available():
             plugin_data["mesh_reader"] = reader
         from .ConfigDialog import ConfigDialog
         plugin_data["extension"] = ConfigDialog()

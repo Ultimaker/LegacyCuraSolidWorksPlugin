@@ -46,12 +46,13 @@ class CommonCOMReader(MeshReader):
         """
 
         Logger.log("d", "Looking for readers...")
-        self.__init_builtin_readers__()
+        self._initialized = False
 
-    def __init_builtin_readers__(self):
         self._file_formats_first_choice = [] # Ordered list of preferred formats
         self._reader_for_file_format = {}
 
+
+    def __init_builtin_readers__(self):
         # Trying 3MF first because it describes the model much better..
         # However, this is untested since this plugin was only tested with STL support
         if PluginRegistry.getInstance().isActivePlugin("3MFReader"):
@@ -117,6 +118,10 @@ class CommonCOMReader(MeshReader):
             comtypes.CoUninitialize()
 
     def _read(self, file_path):
+        if not self._initialized:
+            self.__init_builtin_readers__()
+            self._initialized = True
+
         options = {"foreignFile": file_path,
                    "foreignFormat": os.path.splitext(file_path)[1],
                    }
