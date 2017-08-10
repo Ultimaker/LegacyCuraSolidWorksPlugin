@@ -24,6 +24,7 @@ class CommonCOMReader(MeshReader):
         super().__init__()
         self._app_name = app_name
         self._app_friendly_name = app_friendly_name
+        #self._file_formats_first_choice = []
 
         # Start/stop behaviour
 
@@ -45,25 +46,42 @@ class CommonCOMReader(MeshReader):
             self.startApp()
         """
 
-        Logger.log("d", "Looking for readers...")
-        self.__init_builtin_readers__()
+        #Logger.log("d", "Looking for readers...")
+        #self.__init_builtin_readers__()
 
-    def __init_builtin_readers__(self):
-        self._file_formats_first_choice = [] # Ordered list of preferred formats
-        self._reader_for_file_format = {}
+    #def __init_builtin_readers__(self):
+    #    self._file_formats_first_choice = [] # Ordered list of preferred formats
+    #    self._reader_for_file_format = {}
+    #
+    #    # Trying 3MF first because it describes the model much better..
+    #    # However, this is untested since this plugin was only tested with STL support
+    #    if PluginRegistry.getInstance().isActivePlugin("3MFReader"):
+    #        self._reader_for_file_format["3mf"] = PluginRegistry.getInstance().getPluginObject("3MFReader")
+    #        self._file_formats_first_choice.append("3mf")
+    #
+    #    if PluginRegistry.getInstance().isActivePlugin("STLReader"):
+    #        self._reader_for_file_format["stl"] = PluginRegistry.getInstance().getPluginObject("STLReader")
+    #        self._file_formats_first_choice.append("stl")
+    #
+    #    if not len(self._reader_for_file_format):
+    #        Logger.log("d", "Could not find any reader for (probably) supported file formats!")
+
+    @property
+    def _reader_for_file_format(self):
+        _reader_for_file_format = {}
 
         # Trying 3MF first because it describes the model much better..
         # However, this is untested since this plugin was only tested with STL support
         if PluginRegistry.getInstance().isActivePlugin("3MFReader"):
-            self._reader_for_file_format["3mf"] = PluginRegistry.getInstance().getPluginObject("3MFReader")
-            self._file_formats_first_choice.append("3mf")
-
+            _reader_for_file_format["3mf"] = PluginRegistry.getInstance().getPluginObject("3MFReader")
+        
         if PluginRegistry.getInstance().isActivePlugin("STLReader"):
-            self._reader_for_file_format["stl"] = PluginRegistry.getInstance().getPluginObject("STLReader")
-            self._file_formats_first_choice.append("stl")
-
-        if not len(self._reader_for_file_format):
+            _reader_for_file_format["stl"] = PluginRegistry.getInstance().getPluginObject("STLReader")
+        
+        if not len(_reader_for_file_format):
             Logger.log("d", "Could not find any reader for (probably) supported file formats!")
+        
+        return _reader_for_file_format
 
     def getSaveTempfileName(self, suffix = ""):
         # Only get a save name for a temp_file here...

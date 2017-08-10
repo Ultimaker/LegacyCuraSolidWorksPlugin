@@ -13,6 +13,7 @@ from UM.Logger import Logger
 from UM.Math.Vector import Vector
 from UM.Math.Quaternion import Quaternion
 from UM.Mesh.MeshReader import MeshReader
+from UM.PluginRegistry import PluginRegistry
 
 # Our plugin
 from .CommonComReader import CommonCOMReader
@@ -33,11 +34,10 @@ class SolidWorksReader(CommonCOMReader):
                                       ]
 
         self._convert_assembly_into_once = True  # False is not implemented now!
-        self._file_formats_first_choice = []
         self._revision = None
-        self._revision_major = None
-        self._revision_minor = None
-        self._revision_patch = None
+        self._revision_major = 0
+        self._revision_minor = 0
+        self._revision_patch = 0
 
         self._ui = SolidWorksReaderUI()
         self._selected_quality = None
@@ -45,6 +45,20 @@ class SolidWorksReader(CommonCOMReader):
                                    "fine": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine}
 
         self.root_component = None
+        
+    @property
+    def _file_formats_first_choice(self):
+        _file_formats_first_choice = [] # Ordered list of preferred formats
+
+        # Trying 3MF first because it describes the model much better..
+        # However, this is untested since this plugin was only tested with STL support
+        if self._revision_major >= 25 and PluginRegistry.getInstance().isActivePlugin("3MFReader"):
+            _file_formats_first_choice.append("3mf")
+
+        if PluginRegistry.getInstance().isActivePlugin("STLReader"):
+            _file_formats_first_choice.append("stl")
+
+        return _file_formats_first_choice
 
     def preRead(self, file_name, *args, **kwargs):
         self._ui.showConfigUI()
@@ -82,17 +96,7 @@ class SolidWorksReader(CommonCOMReader):
         self._revision_minor = self._revision[1]
         self._revision_patch = self._revision[2]
 
-        # Re-generate a list of preferred file formats
-        self.updateFormatsFirstChoise()
-
         return app_instance
-
-    def updateFormatsFirstChoise(self):
-        self._file_formats_first_choice = ["stl"]
-        if self._revision_major >= 25 and "3mf" in self._reader_for_file_format.keys():
-            self._file_formats_first_choice.insert(0, "3mf")
-
-        return self._file_formats_first_choice
 
     def checkApp(self, **options):
         functions_to_be_checked = ("OpenDoc", "CloseDoc")
