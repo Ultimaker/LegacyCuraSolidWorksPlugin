@@ -70,7 +70,7 @@ class CommonCOMReader(MeshReader):
     def getSaveTempfileName(self, suffix = ""):
         # Only get a save name for a temp_file here...
         temp_stl_file = tempfile.NamedTemporaryFile()
-        temp_stl_file_name = "%s%s" % (temp_stl_file.name, suffix)
+        temp_stl_file_name = "{}{}".format(temp_stl_file.name, suffix)
         temp_stl_file.close()
 
         return temp_stl_file_name
@@ -126,12 +126,12 @@ class CommonCOMReader(MeshReader):
             options["app_instance"] = self.startApp()
         except Exception:
             Logger.logException("e", "Failed to start <%s>...", self._app_name)
-            error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting %s!" % self._app_friendly_name))
+            error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting {}!".format(self._app_friendly_name)))
             error_message.show()
             return None
 
         # Tell the 3rd party application to open a file...
-        Logger.log("d", "Opening file with %s..." % self._app_friendly_name)
+        Logger.log("d", "Opening file with {}...".format(self._app_friendly_name))
         options = self.openForeignFile(**options)
 
         # Append all formats which are not preferred to the end of the list
@@ -148,7 +148,7 @@ class CommonCOMReader(MeshReader):
 
             options["tempType"] = file_format
 
-            options["tempFile"] = self.getSaveTempfileName(".%s" % file_format.upper())
+            options["tempFile"] = self.getSaveTempfileName(".{}".format(file_format.upper()))
             Logger.log("d", "Using temporary file <%s>", options["tempFile"])
 
             # In case there is already a file with this name (very unlikely...)
