@@ -142,7 +142,6 @@ class CommonCOMReader(MeshReader):
 
         # Trying to convert into all formats 1 by 1 and continue with the successful export
         Logger.log("i", "Trying to convert into: %s", fileFormats)
-        temp_scene_node = None
         for file_format in fileFormats:
             Logger.log("d", "Trying to convert <%s> into '%s'", file_path, file_format)
 
@@ -168,24 +167,6 @@ class CommonCOMReader(MeshReader):
             else:
                 Logger.log("d", "Temporary file not found after export!")
                 continue
-
-            # Opening the resulting file in Cura
-            try:
-                #reader = self._readerForFileformat[fileFormat]
-                reader = Application.getInstance().getMeshFileHandler().getReaderForFile(options["tempFile"])
-                if not reader:
-                    Logger.log("d", "Found no reader for %s. That's strange...")
-                    continue
-                Logger.log("d", "Using reader: %s", reader.getPluginId())
-                temp_scene_node = reader.read(options["tempFile"])
-            except:
-                Logger.logException("e", "Failed to open exported <%s> file in Cura!", file_format)
-                continue
-
-            # Remove the temp_file again
-            Logger.log("d", "Removing temporary STL file, called <%s>", options["tempFile"])
-            os.remove(options["tempFile"])
-
             break
 
         # Closing document in the app
@@ -194,22 +175,22 @@ class CommonCOMReader(MeshReader):
         # Closing the app again..
         self.closeApp(**options)
 
-        scene_node = SceneNode()
-        if temp_scene_node is None:
+        # Opening the resulting file in Cura
+        scene_node = None
+        try:
+            #reader = self._readerForFileformat[fileFormat]
+            reader = Application.getInstance().getMeshFileHandler().getReaderForFile(options["tempFile"])
+            if not reader:
+                Logger.log("d", "Found no reader for %s. That's strange...")
+                return None
+            Logger.log("d", "Using reader: %s", reader.getPluginId())
+            scene_node = reader.read(options["tempFile"])
+        except:
+            Logger.logException("e", "Failed to open exported <%s> file in Cura!", file_format)
             return None
 
-        temp_scene_node = self.nodePostProcessing(temp_scene_node)
-        mesh = temp_scene_node.getMeshDataTransformed()
+        # Remove the temp_file again
+        Logger.log("d", "Removing temporary STL file, called <%s>", options["tempFile"])
+        os.remove(options["tempFile"])
 
-        # When using 3MF as the format to convert into we get an list of meshes instead of only one mesh directly.
-        # This is a little workaround since reloading of 3MF files doesn't work at the moment.
-        if type(mesh) == list:
-            error_message = Message(i18n_catalog.i18nc("@info:status", "Please keep in mind, that you have to reopen your SolidWorks file manually! Reloading the model won't work!"))
-            error_message.show()
-            mesh = mesh.set(file_name = None)
-        else:
-            mesh = mesh.set(file_name = file_path)
-        scene_node.setMeshData(mesh)
-
-        if scene_node:
-            return scene_node
+        return scene_node
