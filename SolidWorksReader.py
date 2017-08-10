@@ -42,7 +42,7 @@ class SolidWorksReader(CommonCOMReader):
         self._ui = SolidWorksReaderUI()
         self._selected_quality = None
         self._quality_value_map = {"coarse": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Coarse,
-                                   "find": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine}
+                                   "fine": SolidWorksEnums.swSTLQuality_e.swSTLQuality_Fine}
 
         self.root_component = None
 
