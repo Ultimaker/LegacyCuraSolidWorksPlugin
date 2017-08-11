@@ -233,7 +233,7 @@ class SolidWorksReader(CommonCOMReader):
 
     def nodePostProcessing(self, node):
         # TODO: Investigate how the status is on SolidWorks 2018 (now beta)
-        if self._revision_major == 24: # Known problem under SolidWorks 2016 until 2017: Exported models are rotated by -90 degrees. This rotates it back!
+        if self._revision_major >= 24: # Known problem under SolidWorks 2016 until 2017: Exported models are rotated by -90 degrees. This rotates it back!
             rotation = Quaternion.fromAngleAxis(math.radians(90), Vector.Unit_X)
             node.rotate(rotation)
         return node
