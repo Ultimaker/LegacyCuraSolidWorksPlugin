@@ -173,7 +173,7 @@ class SolidWorksReader(CommonCOMReader):
         if documentSpecification.Error:
             Logger.log("e", "Errors happened while opening your SolidWorks file!")
             error_message = Message(i18n_catalog.i18nc("@info:status", "Errors appeared while opening your SolidWorks file! \
-            Please check, whether it is possible to open your file in SolidWorks itself without any problems as well!" % (self._app_friendly_name)))
+            Please check, whether it is possible to open your file in SolidWorks itself without any problems as well!" ))
             error_message.show()
 
         error, model_pointer = options["app_instance"].ActivateDoc3(filename, True, SolidWorksEnums.swRebuildOnActivation_e.swDontRebuildActiveDoc)
