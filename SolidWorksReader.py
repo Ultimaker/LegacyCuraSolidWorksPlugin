@@ -111,6 +111,7 @@ class SolidWorksReader(CommonCOMReader):
 
     def closeApp(self, **options):
         if "app_instance" in options.keys():
+            #options["app_instance"].CloseAllDocuments(True) # Ensures that all docs have been closed!
             pass
 
     def walkComponentsInAssembly(self, root = None):
