@@ -149,7 +149,6 @@ class SolidWorksReader(CommonCOMReader):
         else:
             raise NotImplementedError("Unknown extension. Something went terribly wrong!")
 
-        #options["sw_model"] = options["app_instance"].OpenDoc(options["foreignFile"], filetype)
         documentSpecification = options["app_instance"].GetOpenDocSpec(options["foreignFile"])
 
         ## NOTE: SPEC: FileName
