@@ -21,6 +21,8 @@ from comtypes.client import GetClassObject
 
 
 class CommonCOMReader(MeshReader):
+    conversion_lock = threading.Lock()
+    
     def __init__(self, app_name, app_friendly_name):
         super().__init__()
         self._app_name = app_name
