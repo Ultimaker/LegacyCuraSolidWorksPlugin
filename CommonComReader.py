@@ -68,6 +68,8 @@ class CommonCOMReader(MeshReader):
             self._reader_for_file_format["stl"] = PluginRegistry.getInstance().getPluginObject("STLReader")
             self._file_formats_first_choice.append("stl")
 
+        self._initialized = True
+
     def getSaveTempfileName(self, suffix = ""):
         # Only get a save name for a temp_file here...
         temp_stl_file = tempfile.NamedTemporaryFile(suffix = suffix, delete = False)
@@ -120,7 +122,6 @@ class CommonCOMReader(MeshReader):
     def _read(self, file_path):
         if not self._initialized:
             self.__init_builtin_readers__()
-            self._initialized = True
 
         options = {"foreignFile": file_path,
                    "foreignFormat": os.path.splitext(file_path)[1],
