@@ -3,6 +3,7 @@
 # Buildins
 import os
 import tempfile
+import threading
 
 # Uranium/Cura
 from UM.Application import Application
@@ -128,9 +129,13 @@ class CommonCOMReader(MeshReader):
         # make sure to initialize and de-initialize COM
         comtypes.CoInitializeEx(comtypes.COINIT_MULTITHREADED)
         try:
+            # Let's convert only one file at a time!
+            self.conversion_lock.acquire()
+            
             return self._read(file_path)
         finally:
             comtypes.CoUninitialize()
+            self.conversion_lock.release()
 
     def _read(self, file_path):
         options = {"foreignFile": file_path,
