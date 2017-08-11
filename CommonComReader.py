@@ -126,15 +126,12 @@ class CommonCOMReader(MeshReader):
         return node
 
     def read(self, file_path):
-        # make sure to initialize and de-initialize COM
-        comtypes.CoInitializeEx(comtypes.COINIT_MULTITHREADED)
         try:
             # Let's convert only one file at a time!
             self.conversion_lock.acquire()
             
             return self._read(file_path)
         finally:
-            comtypes.CoUninitialize()
             self.conversion_lock.release()
 
     def _read(self, file_path):
@@ -142,7 +139,8 @@ class CommonCOMReader(MeshReader):
                    "foreignFormat": os.path.splitext(file_path)[1],
                    }
 
-        # Starting app, if needed
+        # Starting app and Coinit before
+        comtypes.CoInitializeEx(comtypes.COINIT_MULTITHREADED)
         try:
             options["app_instance"] = self.startApp()
         except Exception:
@@ -214,6 +212,12 @@ class CommonCOMReader(MeshReader):
 
         # Closing the app again..
         self.closeApp(**options)
+
+        comtypes.CoUninitialize()
+        
+        # Nuke the instance!
+        if "app_instance" in options.keys():
+            del options["app_instance"]
 
         scene_node = SceneNode()
         if temp_scene_node is None:

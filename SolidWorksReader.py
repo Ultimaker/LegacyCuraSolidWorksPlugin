@@ -110,7 +110,7 @@ class SolidWorksReader(CommonCOMReader):
 
     def closeApp(self, **options):
         if "app_instance" in options.keys():
-            del options["app_instance"]
+            pass
 
     def walkComponentsInAssembly(self, root = None):
         if root is None:
