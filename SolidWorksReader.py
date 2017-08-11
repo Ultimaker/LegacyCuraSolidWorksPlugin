@@ -5,6 +5,7 @@
 
 # Build-ins
 import math
+import os
 
 # Uranium/Cura
 from UM.i18n import i18nCatalog
