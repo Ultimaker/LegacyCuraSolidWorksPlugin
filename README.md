@@ -20,7 +20,12 @@ Cura plugin to support solidworks filetypes
  3. Restart Cura
  
  4. Open a part file and/or assembly file of your choise. You should be able to find both file types being supported in the open file dialog:
+ 
     ![Screenshot of supported files](https://raw.githubusercontent.com/Ultimaker/CuraSolidWorksPlugin/doc/OpenFileDialogSupportedFiles.png)
+    
+ 5. (optional) If you can't open any SolidWorks file, then you probably don't have SolidWorks installed. To be sure that the plugin is really installed, there is another double check you can make:
+ 
+    ![Screenshot of supported files](https://raw.githubusercontent.com/Ultimaker/CuraSolidWorksPlugin/doc/PreferencesListOfPlugins.png)
  
  ## How to install via git (bleeding edge)
  
