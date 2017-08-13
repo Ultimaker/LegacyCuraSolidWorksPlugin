@@ -41,7 +41,7 @@ UM.Dialog
             width: parent.width
 
             Label {
-                text: catalog.i18nc("@action:label", "Default quality of the exported STL:")
+                text: catalog.i18nc("@action:label", "Default conversion quality:")
                 width: 150
                 anchors.verticalCenter: parent.verticalCenter
             }
