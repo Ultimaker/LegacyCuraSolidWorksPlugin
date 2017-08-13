@@ -54,6 +54,7 @@ UM.Dialog
                 id: choiceDropdown
 
                 currentIndex: updateCurrentIndex()
+                width: 250
 
                 function updateCurrentIndex()
                 {
