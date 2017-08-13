@@ -4,6 +4,7 @@
 import os
 import tempfile
 import threading
+import uuid
 
 # Uranium/Cura
 from UM.Application import Application
@@ -86,14 +87,6 @@ class CommonCOMReader(MeshReader):
         
         return _reader_for_file_format
 
-    def getSaveTempfileName(self, suffix = ""):
-        # Only get a save name for a temp_file here...
-        temp_stl_file = tempfile.NamedTemporaryFile()
-        temp_stl_file_name = "{}{}".format(temp_stl_file.name, suffix)
-        temp_stl_file.close()
-
-        return temp_stl_file_name
-
     def startApp(self, visible = False):
         Logger.log("d", "Starting %s...", self._app_friendly_name)
 
@@ -169,7 +162,11 @@ class CommonCOMReader(MeshReader):
 
             options["tempType"] = file_format
 
-            options["tempFile"] = self.getSaveTempfileName(".{}".format(file_format.upper()))
+            # Creating a unique file in the temporary directory..
+            options["tempFile"] = os.path.join(tempfile.tempdir,
+                                               "{}.{}".format(uuid.uuid4(), file_format.upper()),
+                                               )
+            
             Logger.log("d", "Using temporary file <%s>", options["tempFile"])
 
             # In case there is already a file with this name (very unlikely...)
