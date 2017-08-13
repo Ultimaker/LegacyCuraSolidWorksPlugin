@@ -78,8 +78,8 @@ UM.Dialog
                     Component.onCompleted:
                     {
                         append({ text: catalog.i18nc("@option:curaSolidworksStlQuality", "Always ask"), code: "always_ask" });
-                        append({ text: catalog.i18nc("@option:curaSolidworksStlQuality", "Always use Fine quality"), code: "always_use_fine" });
-                        append({ text: catalog.i18nc("@option:curaSolidworksStlQuality", "Always use Coarse quality"), code: "always_use_coarse" });
+                        append({ text: catalog.i18nc("@option:curaSolidworksStlQuality", "Fine quality"), code: "always_use_fine" });
+                        append({ text: catalog.i18nc("@option:curaSolidworksStlQuality", "Coarse quality"), code: "always_use_coarse" });
                     }
                 }
             }
