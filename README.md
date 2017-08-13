@@ -14,6 +14,7 @@ Cura plugin to support solidworks filetypes
  2. Look for "SolidWorks Integration" and click on install.
     
     ![Screenshot of plugin browser](https://github.com/Ultimaker/CuraSolidWorksPlugin/blob/doc/ChoosePluginInTheBrowser.png)
+    
     NOTE: This is how it should look like, when the plugin has been correctly installed.
     
  3. Restart Cura
