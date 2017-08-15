@@ -87,13 +87,13 @@ class CommonCOMReader(MeshReader):
         
         return _reader_for_file_format
 
-    def startApp(self, visible = False):
+    def startApp(self, **options):
         Logger.log("d", "Starting %s...", self._app_friendly_name)
 
         com_class_object = GetClassObject(self._app_name)
-        com_instance = com_class_object.CreateInstance()
+        options["app_instance"] = com_class_object.CreateInstance()
 
-        return com_instance
+        return options
 
     def checkApp(self):
         raise NotImplementedError("Checking app is not implemented!")
@@ -137,7 +137,7 @@ class CommonCOMReader(MeshReader):
         # Starting app and Coinit before
         comtypes.CoInitializeEx(comtypes.COINIT_MULTITHREADED)
         try:
-            options["app_instance"] = self.startApp()
+            options = self.startApp(**options)
         except Exception:
             Logger.logException("e", "Failed to start <%s>...", self._app_name)
             error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting {}!".format(self._app_friendly_name)))

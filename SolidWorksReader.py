@@ -86,18 +86,18 @@ class SolidWorksReader(CommonCOMReader):
     def getAppVisible(self, state, **options):
         return options["app_instance"].Visible
 
-    def startApp(self, visible=False):
-        app_instance = super().startApp(visible = visible)
+    def startApp(self, **options):
+        options = super().startApp(**options)
 
         # Getting revision after starting
-        revision_number = app_instance.RevisionNumber()
+        revision_number = options["app_instance"].RevisionNumber()
         Logger.log("d", "SolidWorks RevisionNumber: %s", revision_number)
         self._revision = [int(x) for x in revision_number.split(".")]
         self._revision_major = self._revision[0]
         self._revision_minor = self._revision[1]
         self._revision_patch = self._revision[2]
 
-        return app_instance
+        return options
 
     def checkApp(self, **options):
         functions_to_be_checked = ("OpenDoc", "CloseDoc")
