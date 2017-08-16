@@ -216,4 +216,6 @@ class CommonCOMReader(MeshReader):
         if "app_instance" in options.keys():
             del options["app_instance"]
 
+        scene_node = self.nodePostProcessing(scene_node)
+
         return scene_node
