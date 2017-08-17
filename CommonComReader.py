@@ -156,7 +156,7 @@ class CommonCOMReader(MeshReader):
 
         # Trying to convert into all formats 1 by 1 and continue with the successful export
         Logger.log("i", "Trying to convert into: %s", fileFormats)
-        temp_scene_node = None
+        scene_node = None
         for file_format in fileFormats:
             Logger.log("d", "Trying to convert <%s> into '%s'", file_path, file_format)
 
@@ -194,14 +194,13 @@ class CommonCOMReader(MeshReader):
                     Logger.log("d", "Found no reader for %s. That's strange...", file_format)
                     continue
                 Logger.log("d", "Using reader: %s", reader.getPluginId())
-                temp_scene_node = reader.read(options["tempFile"])
+                scene_node = reader.read(options["tempFile"])
             except:
                 Logger.logException("e", "Failed to open exported <%s> file in Cura!", file_format)
                 continue
 
             # Remove the temp_file again
             Logger.log("d", "Removing temporary %s file, called <%s>", file_format, options["tempFile"])
-            os.remove(options["tempFile"])
 
             break
 
@@ -217,22 +216,12 @@ class CommonCOMReader(MeshReader):
         if "app_instance" in options.keys():
             del options["app_instance"]
 
-        scene_node = SceneNode()
-        if temp_scene_node is None:
-            return None
+        # the returned node from STL or 3MF reader can be a node or a list of nodes
+        scene_node_list = scene_node
+        if not isinstance(scene_node, list):
+            scene_node_list = [scene_node]
 
-        temp_scene_node = self.nodePostProcessing(temp_scene_node)
-        mesh = temp_scene_node.getMeshDataTransformed()
+        for node in scene_node_list:
+            self.nodePostProcessing(node)
 
-        # When using 3MF as the format to convert into we get an list of meshes instead of only one mesh directly.
-        # This is a little workaround since reloading of 3MF files doesn't work at the moment.
-        if type(mesh) == list:
-            error_message = Message(i18n_catalog.i18nc("@info:status", "Please keep in mind, that you have to reopen your SolidWorks file manually! Reloading the model won't work!"))
-            error_message.show()
-            mesh = mesh.set(file_name = None)
-        else:
-            mesh = mesh.set(file_name = file_path)
-        scene_node.setMeshData(mesh)
-
-        if scene_node:
-            return scene_node
+        return scene_node
