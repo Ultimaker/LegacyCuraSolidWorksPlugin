@@ -87,13 +87,13 @@ class CommonCOMReader(MeshReader):
         
         return _reader_for_file_format
 
-    def startApp(self, visible = False):
+    def startApp(self, options):
         Logger.log("d", "Starting %s...", self._app_friendly_name)
 
         com_class_object = GetClassObject(self._app_name)
-        com_instance = com_class_object.CreateInstance()
+        options["app_instance"] = com_class_object.CreateInstance()
 
-        return com_instance
+        return options
 
     def checkApp(self):
         raise NotImplementedError("Checking app is not implemented!")
@@ -101,20 +101,20 @@ class CommonCOMReader(MeshReader):
     def getAppVisible(self, state):
         raise NotImplementedError("Toggle for visibility not implemented!")
 
-    def setAppVisible(self, state, **options):
+    def setAppVisible(self, state, options):
         raise NotImplementedError("Toggle for visibility not implemented!")
 
-    def closeApp(self, **options):
+    def closeApp(self, options):
         raise NotImplementedError("Procedure how to close your app is not implemented!")
 
-    def openForeignFile(self, **options):
+    def openForeignFile(self, options):
         "This function shall return options again. It optionally contains other data, which is needed by the reader for other tasks later."
         raise NotImplementedError("Opening files is not implemented!")
 
-    def exportFileAs(self, model, **options):
+    def exportFileAs(self, model, options):
         raise NotImplementedError("Exporting files is not implemented!")
 
-    def closeForeignFile(self, **options):
+    def closeForeignFile(self, options):
         raise NotImplementedError("Closing files is not implemented!")
 
     def nodePostProcessing(self, node):
@@ -137,7 +137,7 @@ class CommonCOMReader(MeshReader):
         # Starting app and Coinit before
         comtypes.CoInitializeEx(comtypes.COINIT_MULTITHREADED)
         try:
-            options["app_instance"] = self.startApp()
+            options = self.startApp(options)
         except Exception:
             Logger.logException("e", "Failed to start <%s>...", self._app_name)
             error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting {}!".format(self._app_friendly_name)))
@@ -146,7 +146,7 @@ class CommonCOMReader(MeshReader):
 
         # Tell the 3rd party application to open a file...
         Logger.log("d", "Opening file with {}...".format(self._app_friendly_name))
-        options = self.openForeignFile(**options)
+        options = self.openForeignFile(options)
 
         # Append all formats which are not preferred to the end of the list
         fileFormats = self._file_formats_first_choice
@@ -176,7 +176,7 @@ class CommonCOMReader(MeshReader):
 
             Logger.log("d", "Saving as: <%s>", options["tempFile"])
             try:
-                self.exportFileAs(**options)
+                self.exportFileAs(options)
             except:
                 Logger.logException("e", "Could not export <%s> into '%s'.", file_path, file_format)
                 continue
@@ -205,10 +205,10 @@ class CommonCOMReader(MeshReader):
             break
 
         # Closing document in the app
-        self.closeForeignFile(**options)
+        self.closeForeignFile(options)
 
         # Closing the app again..
-        self.closeApp(**options)
+        self.closeApp(options)
 
         comtypes.CoUninitialize()
         
