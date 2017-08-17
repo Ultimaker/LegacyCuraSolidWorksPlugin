@@ -216,6 +216,12 @@ class CommonCOMReader(MeshReader):
         if "app_instance" in options.keys():
             del options["app_instance"]
 
-        scene_node = self.nodePostProcessing(scene_node)
+        # the returned node from STL or 3MF reader can be a node or a list of nodes
+        scene_node_list = scene_node
+        if not isinstance(scene_node, list):
+            scene_node_list = [scene_node]
+
+        for node in scene_node_list:
+            self.nodePostProcessing(node)
 
         return scene_node
