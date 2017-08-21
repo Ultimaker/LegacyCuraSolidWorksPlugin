@@ -42,6 +42,7 @@ class SolidWorksReaderUI(QObject):
         self._ui_lock.release()
 
     def showConfigUI(self):
+        self._ui_lock.acquire()
         preference = Preferences.getInstance().getValue("cura_solidworks/choice_on_exporting_stl_quality")
         if preference != "always_ask":
             if preference == "always_use_fine":
@@ -51,8 +52,6 @@ class SolidWorksReaderUI(QObject):
             else:
                 self.quality = "fine"
             return
-
-        self._ui_lock.acquire()
         self._cancelled = False
         self.show_config_ui_trigger.emit()
 
