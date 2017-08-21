@@ -51,6 +51,7 @@ class SolidWorksReaderUI(QObject):
                 self.quality = "coarse"
             else:
                 self.quality = "fine"
+            self._ui_lock.release()
             return
         self._cancelled = False
         self.show_config_ui_trigger.emit()
