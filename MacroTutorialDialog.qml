@@ -34,7 +34,7 @@ UM.Dialog
         {
             const activated = i == currentStepIndex;
             stepModel.get(i).activated = activated;
-            animation.source = "macro/tutorial/" + String(currentStepIndex + 1) + ".gif";
+            animation.source = "macro/tutorial/" + stepModel.get(currentStepIndex).gif_file_name;
             animationSlider.maximumValue = animation.frameCount;
             animationSlider.value = animation.currentFrame;
         }
@@ -71,26 +71,31 @@ UM.Dialog
                 ListElement {
                     text: "Start SolidWorks"
                     description: "Start SolidWorks 2016/2017 and make sure that you have a document open."
+                    gif_file_name: "1_start_solidworks.gif"
                     activated: false
                 }
                 ListElement {
                     text: "Open 'Customize' Dialog"
                     description: "Select 'Customize' on the menu bar and open the 'Customize' dialog."
+                    gif_file_name: "2_open_customize_dialog.gif"
                     activated: false
                 }
                 ListElement {
                     text: "Switch to 'Macro'"
                     description: "- Switch to 'Commands'\n- Choose 'Macro'"
+                    gif_file_name: "3_switch_to_macro.gif"
                     activated: false
                 }
                 ListElement {
                     text: "Add New Macro Button"
                     description: "- Trag and drop the 'New Macro Button' icon onto the toolbar\n- Provide the Macro file location and an icon for it"
+                    gif_file_name: "4_add_new_macro_button.gif"
                     activated: false
                 }
                 ListElement {
                     text: "Done!"
                     description: "- Now you have your 'Export model to Cura' button!"
+                    gif_file_name: "5_done.gif"
                     activated: false
                 }
             }
@@ -175,7 +180,7 @@ UM.Dialog
                 anchors.margins: UM.Theme.getSize("default_margin").width
                 width: 1000 * Screen.devicePixelRatio
                 height: 500 * Screen.devicePixelRatio
-                source: "macro/tutorial/" + String(currentStepIndex + 1) + ".gif"
+                source: "macro/tutorial/" + stepModel.get(currentStepIndex).gif_file_name
 
                 onSourceChanged:
                 {
