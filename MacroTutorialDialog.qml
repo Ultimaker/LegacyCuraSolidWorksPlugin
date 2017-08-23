@@ -37,12 +37,13 @@ UM.Dialog
             animation.source = "macro/tutorial/" + stepModel.get(currentStepIndex).gif_file_name;
             animationSlider.maximumValue = animation.frameCount;
             animationSlider.value = animation.currentFrame;
+            animation.playing = true;
         }
     }
 
     Row
     {
-        spacing: 6 * Screen.devicePixelRatio
+        spacing: UM.Theme.getSize("default_margin").width
 
         UM.I18nCatalog { id: catalog; name: "CuraSolidWorksPlugin" }
 
@@ -50,9 +51,9 @@ UM.Dialog
         {
             id: stepsColumn
             anchors.margins: UM.Theme.getSize("default_margin").width
-            width: 200 * Screen.devicePixelRatio
+            width: base.width / 6
 
-            spacing: 6 * Screen.devicePixelRatio
+            spacing: UM.Theme.getSize("default_margin").height
 
             Label
             {
@@ -60,8 +61,7 @@ UM.Dialog
 
                 text: catalog.i18nc("@description:label", "Steps:")
                 wrapMode: Text.WordWrap
-                font.pointSize: 14
-                font.bold: true
+                font: UM.Theme.getFont("large")
             }
 
             ListModel
@@ -135,8 +135,8 @@ UM.Dialog
                 anchors.leftMargin: UM.Theme.getSize("default_margin").width
                 anchors.rightMargin: UM.Theme.getSize("default_margin").width
                 anchors.bottomMargin: UM.Theme.getSize("default_margin").width
-                width: 180
-                height: 40
+                width: parent.width
+                height: UM.Theme.getSize("button").height
                 text: catalog.i18nc("@action:button", "Open the directory\nwith macro and icon")
                 onClicked:
                 {
@@ -149,9 +149,9 @@ UM.Dialog
         {
             id: infoColumn
             anchors.margins: UM.Theme.getSize("default_margin").width
-            width: base.width - stepsColumn - 20 * Screen.devicePixelRatio
+            width: base.width - stepsColumn.width - UM.Theme.getSize("default_margin").width * 3
 
-            spacing: 8 * Screen.devicePixelRatio
+            spacing: UM.Theme.getSize("default_margin").height
 
             Label
             {
@@ -177,8 +177,8 @@ UM.Dialog
             {
                 id: animation
                 anchors.margins: UM.Theme.getSize("default_margin").width
-                width: 1000 * Screen.devicePixelRatio
-                height: 500 * Screen.devicePixelRatio
+                width: parent.width
+                height: parent.width / 2
                 source: "macro/tutorial/" + stepModel.get(currentStepIndex).gif_file_name
 
                 onSourceChanged:
@@ -190,7 +190,7 @@ UM.Dialog
 
             Row
             {
-                spacing: 10 * Screen.devicePixelRatio
+                spacing: UM.Theme.getSize("default_margin").width
 
                 Button
                 {
@@ -223,7 +223,7 @@ UM.Dialog
                 {
                     id: animationSlider
                     anchors.margins: UM.Theme.getSize("default_margin").width
-                    width: 500 * Screen.devicePixelRatio
+                    width: animation.width * 2 / 3
                     orientation: Qt.Horizontal
                     stepSize: 1
                     minimumValue: 0
