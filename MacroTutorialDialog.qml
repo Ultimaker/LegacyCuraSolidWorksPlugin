@@ -1,5 +1,5 @@
 // Copyright (c) 2017 Ultimaker B.V.
-// Cura is released under the terms of the AGPLv3 or higher.
+// CuraSolidWorksPlugin is released under the terms of the AGPLv3 or higher.
 
 import QtQuick 2.7
 import QtQuick.Controls 1.4
@@ -44,7 +44,7 @@ UM.Dialog
     {
         spacing: 6 * Screen.devicePixelRatio
 
-        UM.I18nCatalog { id: catalog; name: "cura" }
+        UM.I18nCatalog { id: catalog; name: "CuraSolidWorksPlugin" }
 
         Column
         {
@@ -159,8 +159,7 @@ UM.Dialog
 
                 text: catalog.i18nc("@description:label", "Instructions:")
                 wrapMode: Text.WordWrap
-                font.pointSize: 14
-                font.bold: true
+                font: UM.Theme.getFont("large")
             }
 
             Label
@@ -171,7 +170,7 @@ UM.Dialog
 
                 text: catalog.i18nc("@description:label", stepModel.get(currentStepIndex).description)
                 wrapMode: Text.WordWrap
-                font.pointSize: 12
+                font: UM.Theme.getFont("default")
             }
 
             AnimatedImage
