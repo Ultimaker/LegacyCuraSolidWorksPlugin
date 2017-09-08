@@ -101,11 +101,20 @@ class SolidWorksReader(CommonCOMReader):
         
         # Getting revision after starting
         revision_number = options["app_instance"].RevisionNumber()
-        Logger.log("d", "Running: %s", SolidWorkVersions.major_version_name[revision_number])
+
         self._revision = [int(x) for x in revision_number.split(".")]
-        self._revision_major = self._revision[0]
-        self._revision_minor = self._revision[1]
-        self._revision_patch = self._revision[2]
+
+        try:
+            self._revision_major = self._revision[0]
+            self._revision_minor = self._revision[1]
+            self._revision_patch = self._revision[2]
+        except IndexError:
+            pass
+
+        try:
+            Logger.log("d", "Running: %s", SolidWorkVersions.major_version_name[self._revision_major])
+        except KeyError:
+            Logger.logException("w", "Unable to get revision number from solid works RevisionNumber.")
 
         return options
 
