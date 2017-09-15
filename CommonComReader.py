@@ -26,13 +26,7 @@ try:
 
     class ComFactory:
         def CreateClassObject(app_name):
-            win32com.client.gencache.Rebuild()
-            #win32com.client.gencache.EnsureModule(app_name)
-            return win32com.client.gencache.EnsureDispatch(app_name)
-            res = win32com.client.Dispatch("{F16137AD-8EE8-4D2A-8CAC-DFF5D1F67522}")
-            Logger.log("d", "DIR> %s", dir(res()))
-            return res
-            #return win32com.client.Dispatch(app_name)
+            return win32com.client.Dispatch(app_name)
 
         def Coinit():
             pythoncom.CoInitializeEx(pythoncom.COINIT_MULTITHREADED)
