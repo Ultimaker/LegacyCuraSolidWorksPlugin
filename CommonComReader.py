@@ -167,7 +167,7 @@ class CommonCOMReader(MeshReader):
         # Starting app and Coinit before
         ComFactory.Coinit()
         try:
-            options = self.startApp(options)
+            self.startApp(options)
         except Exception:
             Logger.logException("e", "Failed to start <%s>...", self._app_name)
             error_message = Message(i18n_catalog.i18nc("@info:status", "Error while starting {}!".format(self._app_friendly_name)))
