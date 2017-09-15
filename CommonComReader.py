@@ -18,7 +18,6 @@ from UM.Scene.SceneNode import SceneNode
 
 # Trying to import one of the COM modules
 try:
-
     import win32com.client
     import win32com.client.gencache
     import pythoncom
