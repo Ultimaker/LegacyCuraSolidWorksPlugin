@@ -44,10 +44,10 @@ except ImportError:
         def CreateClassObject(app_name):
             return comtypes.client.GetClassObject(app_name).CreateInstance()
 
-        def Coinit():
+        def CoInit():
             comtypes.CoInitializeEx(comtypes.COINIT_MULTITHREADED)
 
-        def UnCoinit():
+        def UnCoInit():
             comtypes.CoUninitialize()
 
     Logger.log("i", "ComFactory: Using comtypes!")
