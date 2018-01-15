@@ -7,5 +7,5 @@ install(FILES
     SolidWorksConstants.py
     SolidWorksReader.py
     LICENSE
-    DESTINATION lib/cura/plugins/CuraSolidWorksIntegrationPlugin
+    DESTINATION lib${LIB_SUFFIX}/cura/plugins/CuraSolidWorksIntegrationPlugin
 )
