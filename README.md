@@ -1,3 +1,5 @@
+This is legacy software, an old version that is no longer maintained. Please refer to [the new repository](https://github.com/thopiekar/CuraSolidWorksPlugin).
+
 # CuraSolidWorksPlugin
 Cura plugin to support solidworks filetypes 
 
